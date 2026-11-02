@@ -116,16 +116,28 @@ works" goes to `/about/`.
 
 ### Data `/data/`
 
-- **Search and table:** full-text search (FTS5 `analysis_search`) plus filters
-  for ancestry, trait class, outcome type, tissue, Store and licence.
-  - Uses DataTables in server-side mode over `catalog.sqlite`, through SQLite
-    WASM and HTTP range requests (decision 7).
-  - Only indexed columns are sortable.
-  - On a phone this becomes search-first with result cards, not a 10-column
-    table.
-- **Download:** the whole catalogue as `catalog.sqlite` or `analyses.tsv.gz`,
-  with the version and a checksum.
-- **Licence filter:** shown once the licence fields are filled in.
+Built (decision 13).
+
+- **Search and table:**
+  - Full-text search (FTS5 `analysis_search`), plus filters for ancestry, kind
+    of trait, outcome, tissue and Store. Each filter option shows how many
+    analyses it would leave.
+  - Sorted by best match, sample size (the default) or name. 25 per page, with
+    the request kept in the address so it can be shared.
+  - Runs over `catalog.sqlite` in the browser through HTTP range requests
+    (decision 7), with plain JavaScript rather than DataTables.
+  - The first page is in the HTML, so the page shows results before, or
+    without, JavaScript.
+  - On a phone the table becomes result cards.
+- **Then:** the Store table, downloads, and the ancestry breakdown.
+- **Download:**
+  - Every catalogue version's `catalog.sqlite`, `analyses.tsv.gz`,
+    `stores.tsv` and `changes.tsv`, at `/data/catalog/<version>/`, with
+    SHA-256 checksums.
+  - `/data/catalog/current.json` names the current version, for scripts.
+- **Not yet:**
+  - the licence filter, which waits for the licence fields to be filled in;
+  - the variant C bar of Stores by source.
 
 ### Store Release `/data/stores/<OGS-id>/`
 
@@ -245,9 +257,17 @@ assembly, MVP and eQTLGen licences).
 Found while building the skeleton. Each is something the site says, or needs,
 that isn't true or available yet.
 
-- **The home page offers catalogue downloads** ("download the whole catalogue
-  as SQLite or TSV"), and the Data page doesn't have them yet. They come with
-  the Data page's search.
+- **The catalogue should be built for browsing** (decision 13). That means two
+  covering indexes, 32 KB pages and an optimised search index. Filtered and
+  sorted views then fetch kilobytes rather than about 10 MB, and every action
+  takes about half the time. This is a change to the catalogue build in
+  `opengwasdb-stores`; the statements are in
+  `scripts/catalogue_browse_indexes.sql`. The site already uses them when
+  they are there.
+- **The server must serve the catalogue files for range requests** (decision
+  13). That means `Accept-Ranges: bytes`, no gzip on `.sqlite`, and
+  `application/wasm` for the `.wasm` file. Check with a real request after
+  deployment.
 - **"Available now" for local use** needs a pip or conda release of
   `opengwasdb` and a way to download a store (decision 11).
 - **The benchmark reports have no public address**, so the demo's fine print

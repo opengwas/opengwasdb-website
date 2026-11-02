@@ -266,6 +266,82 @@ Agreed. The catalogue should **store** the values the front page needs:
     review. That stays until the catalogue carries them (the catalogue gaps
     in `site-structure.md`).
 
+### 13. Data page search
+
+- **Library: sql.js-httpvfs 0.8.12**, approved on 2026-11-02 and vendored in
+  `static/vendor/`.
+  - It runs SQLite 3.35 with FTS5 in a Web Worker and reads the catalogue over
+    range requests.
+  - Checked: it reads the catalogue written by SQLite 3.54, including its
+    full-text index.
+  - It has not been updated since 2022. Replacing it touches only
+    `static/js/catalogue-search.js`.
+- **Plain JavaScript, not DataTables.** DataTables needs jQuery and doesn't
+  give phone-friendly result cards. The idea is the same: each page of results
+  is one SQL query.
+- **Requests matter more than bytes.** The library fetches one range at a
+  time, so every request is a network round trip. The page is written to make
+  few:
+  - **Counts are worked out at build time.** The build counts the analyses
+    in every combination of filter values (20 today) and puts the counts in
+    the page. That gives exact totals and per-option counts, and an empty
+    combination is never queried.
+  - **Small filters:** a filter that selects at most 2,000 analyses reads its
+    own rows through its index. Rows sit together by Store in the file.
+  - **Everything else** walks the index for the chosen sort.
+  - **While the page is idle,** it opens the catalogue and reads the top of
+    each tree a search walks, so the first search starts with them in memory.
+- **Measured** on 2026-11-02 with each response delayed, as a remote
+  connection would delay it. The figures are wall-clock time from opening a
+  link, or from pressing Enter, to the results.
+
+  | At 40 ms per request | Current catalogue | Proposed catalogue |
+  |---|---:|---:|
+  | Search "asthma", from a link | 46 requests, 2.5 s | 25 requests, 1.5 s |
+  | First search on the page | 42 requests | 18 requests, 0.9 s |
+  | Later searches | | 2–15 requests, 0.1–0.7 s |
+  | European + binary, by name | 27 requests, 8.9 MB, 1.7 s | 6 requests, 0.3 MB, 0.6 s |
+  | eQTLGen, by sample size | 27 requests, 8.9 MB, 1.7 s | 9 requests, 2.1 MB, 0.8 s |
+  | Molecular, by sample size | 41 requests, 10.6 MB, 2.3 s | 9 requests, 2.1 MB, 0.8 s |
+  | Changing a filter or the sort on the page | | 2–5 requests, 0.2 s |
+
+  - **At 100 ms per request,** roughly a visitor across the Atlantic:
+    - the proposed catalogue takes 1.2–1.8 s from a link with filters, 2.0 s
+      for the first search, and 0.3 s per filter change;
+    - the current catalogue takes 3.5–5.5 s.
+  - **Before the planning above,** "European + binary, by name" took 1,155
+    requests, about 35 s at 30 ms each.
+- **Proposed for the catalogue build** (`opengwasdb-stores`). The statements
+  are in `scripts/catalogue_browse_indexes.sql`, and the browser tests run
+  against a catalogue built this way as well as the current one.
+  - **Two covering indexes.** Each holds every column the results table
+    shows, so filters are checked and results read without fetching rows.
+    The size index runs largest-first, because the library's read-ahead only
+    speeds up forward reads; a backward read took 746 requests.
+  - **32 KB pages instead of 4 KB.** Each request then brings back eight
+    times as much, and trees are shallower.
+    - 16 KB pages were in between.
+    - 64 KB pages saved a few more requests but tripled what a search
+      downloads (3.2 MB for "asthma").
+  - **The FTS5 `optimize` command,** run once the search index is filled.
+  - Together they grow the file from 31.1 to 37.5 MB.
+  - The page detects the indexes and uses them. Without them it still works,
+    with the costs in the first column.
+- **Not done: a narrow copy of the results columns.** Searches in best-match
+  order fetch each match's whole row, and catalogue rows are wide (38
+  columns).
+  - A narrow table of the 8 displayed columns cut fetching 26 rows from 11
+    requests to 6, and the file would grow by about 4 MB.
+  - It needs a new table, since SQLite can't index by row number. Worth
+    adding only if searches still feel slow.
+- *Means for the server:*
+  - Connections are kept open between requests (HTTP/1.1 keep-alive, or
+    HTTP/2), because the page makes many small requests.
+  - `.sqlite` files are sent with `Accept-Ranges: bytes` and without gzip.
+  - The `.wasm` file is sent as `application/wasm`.
+  - Every catalogue version's files stay published, so a page that is open
+    while a new version arrives keeps working.
+
 ## Still open
 
 Nothing blocks starting the design work.

@@ -12,6 +12,7 @@ never sees a half-written site.
 """
 import hashlib
 import json
+import os
 import shutil
 import sys
 import time
@@ -27,7 +28,15 @@ from .catalog import Catalog
 
 ROOT = Path(__file__).resolve().parent.parent
 SITEMAP_CHUNK = 40_000          # the sitemap protocol allows 50,000 URLs per file
+SEARCH_PAGE = 25                # results per page on the Data page
 NUMBER_WORDS = "zero one two three four five six seven eight nine ten".split()
+# Files from each catalogue version that are published for download, and what they are.
+PUBLISHED = {
+    "catalog.sqlite": "The whole catalogue as one SQLite file. The Data page searches this file.",
+    "analyses.tsv.gz": "Every listed analysis, one per row, as tab-separated text.",
+    "stores.tsv": "Every store release, one per row.",
+    "changes.tsv": "What this version added, changed or removed.",
+}
 
 # The query demo's grid: rows are variants, columns are analyses.
 COLS, ROWS = 36, 20
@@ -82,7 +91,7 @@ class Site:
             autoescape=jinja2.select_autoescape(["html", "xml"]),
             undefined=jinja2.StrictUndefined, trim_blocks=True, lstrip_blocks=True)
         env.filters.update(
-            nf=fmt.nf, fdate=fmt.fdate, isodate=fmt.isodate, fms=fmt.fms, fbytes=fmt.fbytes,
+            nf=fmt.nf, fdate=fmt.fdate, isodate=fmt.isodate, fms=fmt.fms, fbytes=fmt.fbytes, fsize=fmt.fsize,
             label=lambda code, kind: fmt.label(kind, code), ancestry=fmt.ancestry,
             md=lambda s: Markup(content.markdown(s)), md_inline=lambda s: Markup(content.markdown_inline(s)))
         hashes = {p.relative_to(self.root / "static").as_posix(): hashlib.md5(p.read_bytes()).hexdigest()[:8]
@@ -216,11 +225,101 @@ class Site:
             "updates_intro": self.fill(copy["updates"]["intro"], **numbers),
         }
 
+    def publish_catalogue(self) -> dict:
+        """Publish every catalogue version's files at /data/catalog/<version>/.
+
+        A version's files never change, so a page that is reading one version keeps
+        working while a newer one is published (decision 7). /data/catalog/current.json
+        names the current version and its files, for scripts.
+        """
+        current = self.catalog.dir.name
+        published = {}
+        for vdir in sorted((self.catalog.root / "versions").iterdir()):
+            files = {}
+            for name, what in PUBLISHED.items():
+                src = vdir / name
+                if not src.is_file():
+                    continue
+                url = f"/data/catalog/{vdir.name}/{name}"
+                dest = self.tmp / url.lstrip("/")
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                # Always a copy, never a hard link: nothing done to the site's files
+                # can then reach the catalogue's own.
+                shutil.copyfile(src, dest)
+                files[name] = {"url": url, "bytes": src.stat().st_size, "what": what,
+                               "sha256": hashlib.sha256(src.read_bytes()).hexdigest()}
+            if files:
+                (self.tmp / "data/catalog" / vdir.name / "SHA256SUMS").write_text(
+                    "".join(f"{f['sha256']}  {n}\n" for n, f in files.items()))
+                published[vdir.name] = files
+        meta = self.catalog.meta()
+        absolute = self.env.globals["absolute"]
+        (self.tmp / "data/catalog/current.json").write_text(json.dumps({
+            "version": meta["version"], "built_at": meta["built_at"],
+            "files": {n: {"url": absolute(f["url"]), "bytes": f["bytes"], "sha256": f["sha256"]}
+                      for n, f in published[current].items()},
+        }, indent=1) + "\n")
+        return {"version": current, "files": published[current]}
+
+    def search(self, stores: dict, download: dict) -> dict:
+        """What the Data page's search needs: its filters, the first page of results
+        (so the page shows something before, or without, JavaScript), and the
+        settings for static/js/catalogue-search.js."""
+        cat, asset = self.catalog, self.env.globals["asset"]
+        facets = [[("none" if v is None else v) for v in row[:-1]] + [row[-1]] for row in cat.facets()]
+        dims = []
+        for i, (key, col, name, kind) in enumerate([
+                ("ancestry", "ancestry_category", "Ancestry", None),
+                ("trait", "trait_class", "Kind of trait", "trait_class"),
+                ("outcome", "outcome_type", "Outcome", "outcome_type"),
+                ("tissue", "tissue", "Tissue", "tissue"),
+                ("store", "store_id", "Store release", None)]):
+            assert cat.FACETS[i] == col
+            counts = {}
+            for row in facets:
+                counts[row[i]] = counts.get(row[i], 0) + row[-1]
+            values = []
+            for v, n in counts.items():
+                if key == "ancestry":
+                    text = fmt.ancestry(None if v == "none" else v)
+                elif key == "store":
+                    text = stores[v]["short"] if v in stores else v
+                elif v == "none":
+                    text = "None"
+                else:
+                    text = fmt.label(kind, v)
+                values.append({"v": v, "label": text, "n": n})
+            if key in ("ancestry", "tissue"):
+                values.sort(key=lambda x: (x["v"] == "none", -x["n"]))
+            else:
+                values.sort(key=lambda x: x["v"])
+            dims.append({"key": key, "col": col, "label": name, "index": f"analyses_by_{col}", "values": values})
+        config = {
+            "catalog": download["files"]["catalog.sqlite"]["url"],
+            "worker": asset("vendor/sql.js-httpvfs/sqlite.worker.js"),
+            "wasm": asset("vendor/sql.js-httpvfs/sql-wasm.wasm"),
+            # Results per page, and the catalogue's SQLite page size: each range request
+            # fetches whole pages.
+            "perPage": SEARCH_PAGE, "dbPageSize": cat.page_size(),
+            "facets": facets, "total": sum(r[-1] for r in facets),
+            "dims": [{k: d[k] for k in ("key", "col", "label", "index")} | {"values": [{"v": v["v"], "label": v["label"]} for v in d["values"]]} for d in dims],
+            "stores": {sid: {"short": s["short"], "colour": s["colour"]} for sid, s in stores.items()},
+            "ancestry": {k: fmt.ancestry(k) for k in fmt.ANCESTRY},
+            "labels": {k: fmt.LABELS[k] for k in ("trait_class", "outcome_type", "tissue")},
+            # Covering indexes, if the catalogue has them (decision 13); otherwise
+            # the single-column indexes every catalogue has.
+            "browseIndexes": {"name": "analyses_browse_by_label", "size": "analyses_browse_by_sample_size"},
+            "plainIndexes": {"name": "analyses_by_analysis_label", "size": "analyses_by_sample_size"},
+        }
+        return {"dims": dims, "rows": cat.browse(SEARCH_PAGE),
+                "config": json.dumps(config, separators=(",", ":")).replace("</", "<\\/")}
+
     # ---- the build -----------------------------------------------------
 
     def build(self) -> dict:
         t0 = time.monotonic()
-        self.tmp = self.out.with_name(self.out.name + ".tmp")
+        # One working folder per build, so two builds at once can't mix their files.
+        self.tmp = self.out.with_name(f"{self.out.name}.tmp-{os.getpid()}")
         shutil.rmtree(self.tmp, ignore_errors=True)
         shutil.copytree(self.root / "static", self.tmp / "assets")
         shutil.copy(self.root / "static/img/favicon.ico", self.tmp / "favicon.ico")
@@ -245,7 +344,9 @@ class Site:
                    updates=[n for n in news if n["kind"] == "catalogue"][:3])
 
         # Data: the catalogue, each Store Release and each Analysis
-        self.write("/data/", "data.html", section="data", stores=stores, ancestry=cat.ancestry())
+        download = self.publish_catalogue()
+        self.write("/data/", "data.html", section="data", stores=stores, ancestry=cat.ancestry(), download=download,
+                   search=self.search(by_id, download))
         self.write("/data/stores/", "stores.html", section="data", stores=stores)
         for s in stores:
             self.write(f"/data/stores/{s['id']}/", "store.html", section="data", store=s,
@@ -294,7 +395,7 @@ class Site:
         (self.tmp / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {self.env.globals['absolute']('/sitemap.xml')}\n")
 
         # Swap the new site into place
-        old = self.out.with_name(self.out.name + ".old")
+        old = self.out.with_name(f"{self.out.name}.old-{os.getpid()}")
         shutil.rmtree(old, ignore_errors=True)
         if self.out.exists():
             self.out.rename(old)

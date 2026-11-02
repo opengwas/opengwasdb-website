@@ -30,6 +30,9 @@ class Catalog:
     def _rows(self, sql: str, *args) -> list[dict]:
         return [dict(r) for r in self.db.execute(sql, args)]
 
+    def page_size(self) -> int:
+        return self.db.execute("pragma page_size").fetchone()[0]
+
     def meta(self) -> dict:
         m = {r["key"]: r["value"] for r in self._rows("select key, value from catalog_meta")}
         return {"version": m["version"], "built_at": m["built_at"]}
@@ -68,6 +71,27 @@ class Catalog:
         order = "order by analysis_label collate nocase, id" if store_id else "order by id"
         lim = f"limit {int(limit)}" if limit else ""
         return self._rows(f"select * from listed_analyses {where} {order} {lim}", *args)
+
+    # The columns the Data page filters on, in the order facets() reports them.
+    FACETS = ("ancestry_category", "trait_class", "outcome_type", "tissue", "store_id")
+
+    def facets(self) -> list[list]:
+        """How many listed Analyses have each combination of filter values.
+
+        The Data page uses these to show exact counts and to choose an index for
+        each query without asking the catalogue first. There are only a few
+        dozen combinations.
+        """
+        cols = ", ".join(self.FACETS)
+        return [list(r) for r in self.db.execute(
+            f"select {cols}, count(*) from listed_analyses group by {cols} order by {cols}")]
+
+    def browse(self, limit: int) -> list[dict]:
+        """The first page of the Data page's default listing: largest sample size first."""
+        return self._rows(
+            """select id, store_id, analysis_id, analysis_label, ancestry_category, sample_size,
+                      trait_class, outcome_type, tissue
+               from listed_analyses order by sample_size desc, id desc limit ?""", limit)
 
     def versions(self) -> list[dict]:
         """Every catalogue version, newest first, with what it added, changed and removed per Store."""

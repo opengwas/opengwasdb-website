@@ -1,19 +1,75 @@
 {% extends "base.html" %}
 {% import "_macros.html" as m %}
 {% set title = "Data" %}
-{% set description = "Browse the OpenGWAS Analysis Catalog: " ~ (totals.analyses | nf) ~ " analyses in " ~ totals.stores ~ " store releases." %}
+{% set description = "Search the OpenGWAS Analysis Catalog: " ~ (totals.analyses | nf) ~ " analyses in " ~ totals.stores ~ " store releases, by trait, ancestry, tissue or source." %}
+{% macro trait(r) %}{{ r.trait_class | label("trait_class") }}, {{ (r.tissue | label("tissue")) if r.tissue else (r.outcome_type | label("outcome_type") | lower) }}{% endmacro %}
 {% block main %}
 <div class="wrap">
   <header class="page-head">
     <h1>Data</h1>
-    <p class="lede">The catalogue lists {{ totals.analyses | nf }} analyses in {{ totals.stores }} store releases. Each store release is fixed once published, so an analysis can always be found again exactly as it was.</p>
+    <p class="lede">The catalogue lists {{ totals.analyses | nf }} analyses in {{ totals.stores }} store releases. Search them here, or <a href="#download">download the whole catalogue</a>.</p>
   </header>
-  {# SKELETON: catalogue search (SQLite in the browser, decision 7) and downloads come next. #}
-  {{ m.notice("**Search is being built.** It will search every analysis by trait, ancestry, tissue or source, straight from the catalogue file, with the whole catalogue available to download.") }}
 
-  <section class="section">
+  <section class="search" id="search" aria-labelledby="search-title">
+    <h2 id="search-title" class="visually-hidden">Search the catalogue</h2>
+    <form role="search" data-form>
+      <label class="q" for="q"><span>Search analyses</span>
+        <span class="qbox"><input id="q" name="q" type="search" placeholder="Trait, gene, consortium or author" autocomplete="off" spellcheck="false" disabled><button type="submit" disabled>Search</button></span>
+      </label>
+      <div class="filters">
+        {% for d in search.dims %}
+        <label><span>{{ d.label }}</span>
+          <select name="{{ d.key }}" disabled><option value="">All</option>{% for v in d["values"] %}<option value="{{ v.v }}">{{ v.label }} ({{ v.n | nf }})</option>{% endfor %}</select></label>
+        {% endfor %}
+        <label><span>Sort by</span>
+          <select name="sort" disabled><option value="relevance" disabled>Best match</option><option value="size" selected>Sample size, largest first</option><option value="name">Name, A to Z</option></select></label>
+      </div>
+    </form>
+    <noscript><div class="callout">Search and filters need JavaScript. Without it you can browse by <a href="/data/stores/">store release</a> or <a href="#download">download the catalogue</a>.</div></noscript>
+
+    <div class="results-head">
+      <p class="count" data-status aria-live="polite">{{ totals.analyses | nf }} analyses, largest sample size first.</p>
+      <button type="button" class="clear" data-clear hidden>Clear search and filters</button>
+    </div>
+    <div class="table-wrap">
+      <table class="results">
+        <caption class="visually-hidden">Analyses</caption>
+        <thead><tr><th scope="col">Analysis</th><th scope="col">Store release</th><th scope="col">Ancestry</th><th scope="col" class="num">Sample size</th><th scope="col">Kind</th></tr></thead>
+        <tbody data-rows>
+        {% for r in search.rows %}
+          {% set s = stores | selectattr("id", "equalto", r.store_id) | first %}
+          <tr><td class="an"><a href="/data/analyses/{{ r.store_id }}/{{ r.analysis_id }}/">{{ r.analysis_label or r.analysis_id }}</a> <code>{{ r.analysis_id }}</code></td>
+            <td class="st">{{ m.bean(s.colour) }}{{ s.short }}</td>
+            <td class="anc-c">{{ r.ancestry_category | ancestry }}</td>
+            <td class="num">{{ r.sample_size | nf if r.sample_size else "" }}</td>
+            <td class="kind">{{ trait(r) }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <nav class="pager" data-pager aria-label="Pages of results" hidden>
+      <button type="button" data-prev>Previous</button>
+      <span data-page></span>
+      <button type="button" data-next>Next</button>
+    </nav>
+  </section>
+
+  <section class="section" id="stores">
     <h2>Store releases</h2>
     {{ m.store_table(stores) }}
+  </section>
+
+  <section class="section" id="download">
+    <h2>Download the catalogue</h2>
+    <p class="intro">Version <code>{{ download.version }}</code>, built {{ catalog.built_at | fdate }}. Each version's files stay at the same address, unchanged, so a script or paper can point at exactly the version it used.</p>
+    <ul class="downloads">
+    {% for name, f in download.files.items() %}
+      <li><a href="{{ f.url }}" download>{{ name }}</a> <span class="size">{{ f.bytes | fsize }}</span>
+        <p>{{ f.what }}</p>
+        <p class="sum">SHA-256 <code>{{ f.sha256 }}</code></p></li>
+    {% endfor %}
+    </ul>
+    <p class="fine">For scripts: <a href="/data/catalog/current.json"><code>/data/catalog/current.json</code></a> always names the current version and the addresses and checksums of its files.</p>
   </section>
 
   <section class="section">
@@ -22,4 +78,9 @@
     {{ m.ancestry_bars(ancestry) }}
   </section>
 </div>
+{% endblock %}
+{% block scripts %}
+<script type="application/json" id="search-config">{{ search.config | safe }}</script>
+<script src="{{ asset('vendor/sql.js-httpvfs/index.js') }}" defer></script>
+<script src="{{ asset('js/catalogue-search.js') }}" defer></script>
 {% endblock %}
