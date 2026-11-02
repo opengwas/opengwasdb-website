@@ -237,6 +237,35 @@ Agreed. The catalogue should **store** the values the front page needs:
     launch day. "Available now" for local use needs a pip/conda release and a
     download route.
 
+### 12. Site generator and publishing
+
+- **Python and Jinja, run with pixi**, as the opengwasdb repos are. A small
+  build (`sitegen/`) turns Markdown, a few YAML files and the Analysis Catalog
+  into plain HTML. It builds about 35,000 pages in about 20 seconds.
+- **Words live in Markdown and YAML**, so news posts and text changes need no
+  code and can be made in GitHub's web editor. That includes every word on
+  the home page (`data/home.yaml`).
+- **Publishing:**
+  - Every pull request runs a GitHub check, on GitHub's own machines. It runs
+    the tests, builds the site from a small copy of the catalogue, and checks
+    every internal link.
+  - The OpenGWAS server publishes. Every few minutes it looks for a new
+    commit on `main` or a new catalogue version, then builds and swaps the new
+    site into place. So catalogue updates appear without anyone pushing
+    anything.
+  - The build runs on the server, not on GitHub, because it reads the
+    catalogue and the benchmark records from there. Nothing on GitHub needs
+    access to the server.
+  - GitHub's option to run its build jobs on our own server is ruled out. On
+    a public repo, anyone's pull request could then run code on the server.
+- *Means for this site:*
+  - The server's scheduled rebuild still has to be set up, together with
+    whoever runs openresty.
+  - Benchmark timings and sizes are collected on the server into
+    `data/benchmarks.json`, which is committed so that changes show up in
+    review. That stays until the catalogue carries them (the catalogue gaps
+    in `site-structure.md`).
+
 ## Still open
 
 Nothing blocks starting the design work.

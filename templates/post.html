@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set title = page.title %}
+{% set description = page.meta.summary | default("") %}
+{% block main %}
+<article class="wrap prose">
+  <header class="page-head">
+    <p class="crumb"><a href="/news/">News</a></p>
+    <h1>{{ page.title }}</h1>
+    <p class="meta"><time datetime="{{ page.meta.date | isodate }}">{{ page.meta.date | fdate }}</time>{% if page.meta.author is defined %}, {{ page.meta.author }}{% endif %}{% if page.meta.draft is defined and page.meta.draft %} <span class="tag">Draft: not published</span>{% endif %}</p>
+  </header>
+  {{ m.notice(page.meta.notice | default("")) }}
+  {{ body }}
+</article>
+{% endblock %}

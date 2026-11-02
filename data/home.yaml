@@ -1,0 +1,120 @@
+# Words on the home page (prototype variant D, approved as decision 11).
+#
+# Text in {{ double braces }} is filled in from the catalogue and the
+# benchmark records when the site is built. Reword freely around it, but keep
+# the braces and the name inside them. Markdown works in every piece of text.
+#
+# Rules from decision 11: numbers only ever come from data, and the statuses
+# under `ways` must be true on the day the site goes live.
+
+title: An engine for GWAS summary data
+lede: >-
+  OpenGWAS harmonises published GWAS, imputes them to a shared set of
+  variants, and stores thousands of analyses as one compact table. Reading
+  across variants, regions or analyses takes milliseconds to seconds.
+points:
+  - text: Imputed against matched reference panels, with every imputed value flagged
+    href: "#imputed"
+  - text: About a tenth of the size of the source files
+    href: "#size"
+  - text: Milliseconds for a PheWAS, seconds for a whole region
+    href: "#demo"
+  - text: Use it on your laptop, a cluster or from your analysis tools
+    href: "#ways"
+
+demo:
+  # Filled in per Store: analyses, variants, variant, locus, hm3_millions, id, measured
+  axis_x: "{{ analyses }} analyses"
+  axis_y: "{{ variants }} variants"
+  caption: Rows are variants and columns are analyses. Highlighted squares are what the query reads.
+  shapes:
+    phewas:
+      what: One variant in every analysis
+      sub: "{{ variant }}, a PheWAS"
+    tophits:
+      what: Top hits for one analysis
+      sub: from the store's built-in index
+    hm3:
+      what: The HapMap3 variants for one analysis
+      sub: "{{ hm3_millions }} million variants, ready for LD score regression"
+    regional:
+      what: A 1 Mb region in every analysis
+      sub: "around {{ locus }}"
+    random_lookup_10_variants_100_analyses:
+      what: 10 variants in 100 analyses
+      sub: picked at random
+    bulk:
+      what: One whole analysis, genome-wide
+      sub: every association it has
+  # Filled in per query: count, time
+  result: "{{ count }} associations in {{ time }}."
+  fine: >-
+    Median of warm-cache runs on one server, on the published imputed release
+    `{{ id }}`, measured {{ measured }}. Times include imputed values.
+
+imputed:
+  title: Imputed, and marked as imputed
+  # Filled in: imputed, genome_wide
+  body: |-
+    Each genome-wide store is completed against an LD reference panel matched to its ancestry, so analyses from different studies line up on the same variants. Every imputed value is flagged, and any query can ask for observed values only.
+
+    So far {{ imputed }} of {{ genome_wide }} genome-wide analyses are imputed. The rest are observed-only for now.
+  before: As published
+  after: In the store
+  key: [Observed, Imputed, Missing]
+
+size:
+  title: About a tenth of the size
+  # Filled in: min_ratio, max_ratio, count_word, source_total, store_total
+  body: >-
+    Imputed genome-wide stores are {{ min_ratio }} to {{ max_ratio }} times
+    smaller than the files they were built from, even with the imputed values
+    added. Across these {{ count_word }}, {{ source_total }} of source files
+    became {{ store_total }}: small enough to keep whole on your own disk or
+    cluster.
+  # Filled in per Store: source, store, ratio
+  row: "{{ source }} of source files, **{{ store }}** as a store, {{ ratio }} times smaller"
+  # Filled in: name, source, store
+  note: >-
+    Sparse data doesn't shrink. {{ name }}'s significant cis results were
+    already compact: {{ source }} as source files and {{ store }} as a store.
+  key: [Source files, Store]
+
+ways:
+  title: Use it where you work
+  items:
+    - status: Available now
+      tone: now
+      title: On your own machine
+      text: Download a store once and query it as often as you like, on a laptop or a cluster.
+      code: |-
+        opengwasdb query-phewas \
+          OGS-00009.opengwasdb rs7412
+    - status: Coming soon
+      tone: soon
+      title: Through the platform
+      text: Send queries to hosted stores at platform.opengwas.io, without downloading anything.
+    - status: In progress
+      tone: progress
+      title: From your analysis tools
+      text: TwoSampleMR, ieugwasr, gwasglue2 and the Genotype-Phenotype Map are moving to the new stores.
+      link: {text: See the tools, href: /tools/}
+
+routes:
+  # Filled in: analyses
+  - title: Browse the catalogue
+    text: >-
+      Search {{ analyses }} analyses by trait, ancestry, tissue or source, and
+      download the whole catalogue as SQLite or TSV.
+    link: {text: Open the catalogue, href: /data/}
+  - title: Commercial use
+    text: >-
+      Free for non-commercial research. Companies need a licence, and licence
+      fees keep the resource running.
+    link: {text: Licensing, href: /licensing/}
+
+updates:
+  title: Data updates
+  # Filled in: analyses, stores, built
+  intro: The catalogue holds {{ analyses }} analyses in {{ stores }} store releases, last updated {{ built }}.
+  more: All news

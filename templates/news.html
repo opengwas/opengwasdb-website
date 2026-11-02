@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set title = "News" %}
+{% set description = "Data updates and announcements from OpenGWAS." %}
+{% block main %}
+<div class="wrap">
+  <header class="page-head">
+    <h1>News</h1>
+    <p class="lede">Data updates, written automatically each time the catalogue changes, and announcements. Follow along with the <a href="/news/feed.xml">news feed</a>.</p>
+  </header>
+  {{ m.updates(items) }}
+</div>
+{% endblock %}

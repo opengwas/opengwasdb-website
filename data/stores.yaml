@@ -1,0 +1,59 @@
+# Display names for each Store Release.
+#
+# Catalogue gap: the catalogue has no source provider or human-readable title
+# per Store yet, so they are kept here. A listed Store missing from this file
+# still builds, under its catalogue label, with a warning.
+#
+#   title:  the full name, used as the heading of the Store's page
+#   short:  a few words, for charts and the home page demo
+#   source: who published the data; must be one of `sources` below
+
+sources:
+  # Each source's colour on charts, from the logo palette (static/css/site.css).
+  GWAS Catalog: teal
+  UK Biobank (MRC IEU): taupe
+  Million Veteran Program: plum
+  FinnGen: lime
+  eQTLGen: orange
+
+stores:
+  OGS-00006:
+    title: Chen et al. 2023 plasma metabolome, European
+    short: Plasma metabolome (Chen 2023)
+    source: GWAS Catalog
+  OGS-00009:
+    title: UK Biobank, MRC IEU analyses (ukb-b)
+    short: UK Biobank (ukb-b)
+    source: UK Biobank (MRC IEU)
+  OGS-00011:
+    title: GWAS Catalog harmonised studies, European
+    short: GWAS Catalog, European
+    source: GWAS Catalog
+  OGS-00012:
+    title: Million Veteran Program, European
+    short: MVP, European
+    source: Million Veteran Program
+  OGS-00013:
+    title: Million Veteran Program, African
+    short: MVP, African
+    source: Million Veteran Program
+  OGS-00014:
+    title: Million Veteran Program, Admixed American
+    short: MVP, Admixed American
+    source: Million Veteran Program
+  OGS-00015:
+    title: Million Veteran Program, East Asian
+    short: MVP, East Asian
+    source: Million Veteran Program
+  OGS-00016:
+    title: Million Veteran Program, multi-ancestry meta-analysis
+    short: MVP, multi-ancestry
+    source: Million Veteran Program
+  OGS-00017:
+    title: FinnGen release 13
+    short: FinnGen R13
+    source: FinnGen
+  OGS-00027:
+    title: eQTLGen 2019 cis-eQTL, whole blood
+    short: eQTLGen cis-eQTL
+    source: eQTLGen

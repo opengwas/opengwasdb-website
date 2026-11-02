@@ -1,0 +1,42 @@
+{% macro bean(colour) %}<span class="bean" style="background:var(--{{ colour }})" aria-hidden="true"></span>{% endmacro %}
+
+{% macro store_table(stores, caption=None) %}
+<div class="table-wrap">
+<table class="stores">
+  {% if caption %}<caption>{{ caption }}</caption>{% endif %}
+  <thead><tr><th scope="col">Store Release</th><th scope="col">Source</th><th scope="col" class="num">Analyses</th><th scope="col">Coverage</th><th scope="col">Values</th></tr></thead>
+  <tbody>
+  {% for s in stores %}
+    <tr>
+      <td class="store"><a href="/data/stores/{{ s.id }}/">{{ s.title }}</a> <code>{{ s.id }}</code></td>
+      <td class="src">{{ bean(s.colour) }}{{ s.source }}</td>
+      <td class="num">{{ s.n_analyses | nf }}</td>
+      <td class="cov">{{ s.association_coverage | label("association_coverage") }}</td>
+      <td class="completed">{{ "Imputed" if s.completion_state == "reference_completed" else "Observed only" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endmacro %}
+
+{% macro ancestry_bars(rows) %}
+{% set top = rows | map(attribute="n") | max %}
+<ul class="anc">
+{% for r in rows %}
+  <li><span class="nm">{{ r.code | ancestry }}</span><span class="track" aria-hidden="true"><span class="fill" style="width:{{ '%.1f' % (100 * r.n / top) }}%"></span></span><span class="num">{{ r.n | nf }}</span></li>
+{% endfor %}
+</ul>
+{% endmacro %}
+
+{% macro updates(items) %}
+<ul class="updates">
+{% for n in items %}
+  <li><time datetime="{{ n.date | isodate }}">{{ n.date | fdate }}</time>
+    <div><a href="{{ n.url }}">{{ n.title }}</a>{% if n.draft is defined and n.draft %} <span class="tag">Draft</span>{% endif %}
+      {% if n.summary %}<p>{{ n.summary | md_inline }}</p>{% endif %}</div></li>
+{% endfor %}
+</ul>
+{% endmacro %}
+
+{% macro notice(text) %}{% if text %}<div class="callout" role="note">{{ text | md }}</div>{% endif %}{% endmacro %}

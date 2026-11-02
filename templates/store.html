@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set s = store %}
+{% set title = s.title ~ " (" ~ s.id ~ ")" %}
+{% set description = s.title ~ ": " ~ (s.n_analyses | nf) ~ " analyses from " ~ s.source ~ " in OpenGWAS store release " ~ s.id ~ "." %}
+{% block main %}
+<div class="wrap">
+  <header class="page-head">
+    <p class="crumb"><a href="/data/">Data</a> / <a href="/data/stores/">Store releases</a></p>
+    <h1>{{ s.title }}</h1>
+    <p class="lede">{{ m.bean(s.colour) }}{{ s.source }}. Store release <code>{{ s.id }}</code>, {{ s.n_analyses | nf }} analyses.</p>
+  </header>
+
+  <div class="cols">
+    <section>
+      <h2>About this release</h2>
+      <dl class="facts">
+        <dt>Store release</dt><dd><code>{{ s.id }}</code></dd>
+        <dt>Analyses</dt><dd>{{ s.n_analyses | nf }}</dd>
+        <dt>Variants</dt><dd>{{ s.n_variants | nf if s.n_variants else "Not recorded" }}</dd>
+        {% if s.n_associations %}<dt>Associations</dt><dd>{{ s.n_associations | nf }}</dd>{% endif %}
+        <dt>Coverage</dt><dd>{{ s.association_coverage | label("association_coverage") }}</dd>
+        <dt>Values</dt><dd>{{ s.completion_state | label("completion_state") }}</dd>
+        <dt>Layout</dt><dd>{{ s.layout | label("layout") }}</dd>
+        {% if s.reference_assembly %}<dt>Reference assembly</dt><dd>{{ s.reference_assembly }}</dd>{% endif %}
+        <dt>Source snapshot</dt><dd><code>{{ s.source_snapshot_id }}</code></dd>
+        <dt>Validated</dt><dd>{{ s.validated_at | fdate }}</dd>
+      </dl>
+
+      <h2>Licences</h2>
+      <p class="intro">Each analysis carries its source's own terms. Check them before using the data.</p>
+      <ul class="plain">
+      {% for l in licences %}<li>{{ l.licence or "Not recorded yet" }}: {{ l.n | nf }} {{ "analysis" if l.n == 1 else "analyses" }}</li>{% endfor %}
+      </ul>
+    </section>
+    <aside>
+      <h2>Ancestry</h2>
+      {{ m.ancestry_bars(ancestry) }}
+    </aside>
+  </div>
+
+  <section class="section">
+    <h2>Analyses</h2>
+    <p class="intro">{% if analyses | length < s.n_analyses %}The first {{ analyses | length }} of {{ s.n_analyses | nf }}, alphabetically. Search will list them all.{% else %}All {{ s.n_analyses | nf }}.{% endif %}</p>
+    <ul class="analyses">
+    {% for a in analyses %}<li><a href="/data/analyses/{{ a.store_id }}/{{ a.analysis_id }}/">{{ a.analysis_label or a.analysis_id }}</a> <code>{{ a.analysis_id }}</code></li>{% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

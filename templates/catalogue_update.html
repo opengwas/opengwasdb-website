@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% set title = item.title ~ ", " ~ (item.date | fdate) %}
+{% set description = item.summary %}
+{% block main %}
+<article class="wrap prose">
+  <header class="page-head">
+    <p class="crumb"><a href="/news/">News</a></p>
+    <h1>{{ item.title }}</h1>
+    <p class="meta"><time datetime="{{ item.date | isodate }}">{{ item.date | fdate }}</time>. Catalogue version <code>{{ item.version.version }}</code>.</p>
+  </header>
+  <p>{{ item.summary | md_inline }}</p>
+  <p>This note is written automatically from the catalogue's own record of what changed.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Store Release</th><th scope="col" class="num">Added</th><th scope="col" class="num">Changed</th><th scope="col" class="num">Removed</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td>{% if r.id in stores %}<a href="/data/stores/{{ r.id }}/">{{ stores[r.id].title }}</a> <code>{{ r.id }}</code>{% else %}<code>{{ r.id }}</code> (no longer listed){% endif %}</td>
+        <td class="num">{{ r.added | nf }}</td><td class="num">{{ r.changed | nf }}</td><td class="num">{{ r.removed | nf }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</article>
+{% endblock %}

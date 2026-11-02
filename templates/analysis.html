@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set name = a.analysis_label or a.analysis_id %}
+{% set title = name ~ " (" ~ a.analysis_id ~ ")" %}
+{% set description = "GWAS summary statistics for " ~ name ~ (", " ~ (a.sample_size | nf) ~ " samples" if a.sample_size else "") ~ ", in OpenGWAS store release " ~ a.store_id ~ " (" ~ store.title ~ ")." %}
+{% block main %}
+<div class="wrap">
+  <header class="page-head">
+    <p class="crumb"><a href="/data/">Data</a> / <a href="/data/stores/{{ store.id }}/">{{ store.title }}</a></p>
+    <h1>{{ name }}</h1>
+    <p class="lede"><code>{{ a.id }}</code></p>
+  </header>
+
+  <div class="cols">
+    <section>
+      <h2>Trait</h2>
+      <dl class="facts">
+        <dt>Label</dt><dd>{{ name }}{% if not a.label_from_source and a.source_label and a.source_label != name %} <span class="muted">(source: {{ a.source_label }})</span>{% endif %}</dd>
+        <dt>Ontology term</dt><dd>{% if a.trait_ontology_id %}{{ a.trait_ontology_label }} <code>{{ a.trait_ontology_id }}</code>{% else %}{{ a.trait_ontology_mapping_method | label("ontology_method") or "Not mapped yet" }}{% endif %}</dd>
+        <dt>Kind of trait</dt><dd>{{ a.trait_class | label("trait_class") }}, {{ (a.outcome_type | label("outcome_type")) | lower }}</dd>
+        {% if a.tissue %}<dt>Tissue</dt><dd>{{ a.tissue | label("tissue") }}{% if a.context %}, {{ a.context }}{% endif %}</dd>{% endif %}
+        {% if a.trait_chr %}<dt>Gene position</dt><dd>Chromosome {{ a.trait_chr }}{% if a.trait_bp %}, {{ a.trait_bp | nf }}{% endif %}</dd>{% endif %}
+      </dl>
+
+      <h2>Samples</h2>
+      <dl class="facts">
+        <dt>Ancestry</dt><dd>{{ a.ancestry_category | ancestry }}{% if a.source_ancestry_label and (a.source_ancestry_label | lower) != (a.ancestry_category | ancestry | lower) %} <span class="muted">(source: {{ a.source_ancestry_label }})</span>{% endif %}</dd>
+        <dt>How ancestry was assigned</dt><dd>{{ a.ancestry_assignment_method | label("ancestry_method") }}</dd>
+        <dt>Sample size</dt><dd>{% if a.sample_size %}{{ a.sample_size | nf }}{% if a.sample_size_kind == "variant_level" %} (varies by variant){% endif %}{% else %}Not recorded{% endif %}</dd>
+        {% if a.n_cases %}<dt>Cases and controls</dt><dd>{{ a.n_cases | nf }} cases, {{ a.n_controls | nf if a.n_controls else "unknown" }} controls</dd>{% endif %}
+      </dl>
+
+      <h2>Effects</h2>
+      <dl class="facts">
+        <dt>Effect sizes stored as</dt><dd>{{ a.stored_effect_scale | label("effect_scale") }}</dd>
+        {% if a.original_effect_scale and a.original_effect_scale != a.stored_effect_scale %}<dt>As published</dt><dd>{{ a.original_effect_scale | label("effect_scale") }}</dd>{% endif %}
+      </dl>
+    </section>
+
+    <aside>
+      <h2>Source</h2>
+      <dl class="facts">
+        <dt>Store release</dt><dd><a href="/data/stores/{{ store.id }}/">{{ store.title }}</a> <code>{{ store.id }}</code></dd>
+        <dt>Source</dt><dd>{{ m.bean(store.colour) }}{{ store.source }}</dd>
+        <dt>Source's ID</dt><dd><code>{{ a.source_analysis_id or a.analysis_id }}</code></dd>
+        {% if a.consortium %}<dt>Consortium</dt><dd>{{ a.consortium }}</dd>{% endif %}
+        {% if a.first_author %}<dt>First author</dt><dd>{{ a.first_author }}</dd>{% endif %}
+        {% if a.publication_doi %}<dt>DOI</dt><dd><a href="https://doi.org/{{ a.publication_doi }}">{{ a.publication_doi }}</a></dd>{% endif %}
+        {% if a.publication_pmid %}<dt>PubMed</dt><dd><a href="https://pubmed.ncbi.nlm.nih.gov/{{ a.publication_pmid }}/">{{ a.publication_pmid }}</a></dd>{% endif %}
+        <dt>Licence</dt><dd>{{ a.license or "Not recorded yet" }}</dd>
+      </dl>
+    </aside>
+  </div>
+</div>
+{% endblock %}

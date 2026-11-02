@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% set title = "Legacy dataset page" %}
+{# Served for any missing page under /datasets/, by a server rule (decision 8):
+   location /datasets/ { error_page 404 /datasets/404.html; } #}
+{% block main %}
+<div class="wrap prose">
+  <header class="page-head">
+    <h1>This was a legacy OpenGWAS dataset page</h1>
+    <p class="lede" id="legacy-id" hidden></p>
+  </header>
+  <p>Dataset pages from the legacy OpenGWAS service are no longer here. OpenGWAS now organises its data as analyses in versioned store releases, with new IDs.</p>
+  <ul>
+    <li><a href="/transition/">What's changed, and where the archived legacy data is</a></li>
+    <li><a href="/tools/">Tools that can map legacy IDs to the new catalogue</a></li>
+    <li><a href="/data/">Browse the catalogue</a></li>
+  </ul>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Name the legacy ID from the address, e.g. /datasets/ieu-a-2 -> ieu-a-2
+  (() => {
+    const id = decodeURIComponent(location.pathname.replace(/^\/datasets\/?/, "").split("/")[0] || "");
+    if (!id || id === "404.html") return;
+    const p = document.getElementById("legacy-id"), code = document.createElement("code");
+    code.textContent = id;
+    p.append(code, " is a legacy OpenGWAS ID.");
+    p.hidden = false;
+  })();
+</script>
+{% endblock %}

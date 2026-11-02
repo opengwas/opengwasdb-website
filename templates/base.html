@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.documentElement.classList.add("js")</script>
+{% set full_title = (title ~ " – " ~ site.title) if title is defined else (site.title ~ ": " ~ (tagline if tagline is defined else "GWAS summary data")) %}
+{% set desc = description if description is defined and description else site.description %}
+<title>{{ full_title }}</title>
+<meta name="description" content="{{ desc }}">
+<link rel="canonical" href="{{ absolute(url) }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ site.title }}">
+<meta property="og:title" content="{{ title if title is defined else site.title }}">
+<meta property="og:description" content="{{ desc }}">
+<meta property="og:url" content="{{ absolute(url) }}">
+<meta property="og:image" content="{{ absolute('/assets/img/logo.png') }}">
+<link rel="alternate" type="application/atom+xml" title="OpenGWAS news" href="/news/feed.xml">
+<link rel="icon" href="{{ asset('img/favicon.ico') }}">
+<link rel="preload" href="{{ asset('fonts/atkinson-hyperlegible-next-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ asset('css/site.css') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a href="/" class="logo"{% if section == "home" %} aria-current="page"{% endif %}><img src="{{ asset('img/logo.png') }}" alt="IEU OpenGWAS project" width="481" height="180"></a>
+    <button type="button" class="menu-btn" aria-expanded="false" aria-controls="mainnav" hidden>Menu</button>
+    <nav class="site-nav" id="mainnav" aria-label="Main">
+      <ul>
+      {% for item in site.nav %}
+        {% if item.soon is defined and item.soon %}
+        <li><span class="soon" title="{{ item.hint }}">{{ item.label }}<small>soon</small></span></li>
+        {% else %}
+        <li><a href="{{ item.href }}"{% if item.href.strip("/") == section %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
+        {% endif %}
+      {% endfor %}
+      </ul>
+    </nav>
+  </div>
+</header>
+{% if site.notice is defined and site.notice %}
+<div class="notice" role="note"><div class="wrap">{{ site.notice | md_inline }}</div></div>
+{% endif %}
+
+<main id="main" tabindex="-1">
+{% block main %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h2>{{ site.title }}</h2>
+      <p>{{ site.footer.about | md_inline }}</p>
+      <p>Contact <a href="mailto:{{ site.contact }}">{{ site.contact }}</a></p>
+    </div>
+    <div>
+      <h2>Policies</h2>
+      <ul>{% for l in site.footer.policies %}<li><a href="{{ l.href }}">{{ l.label }}</a></li>{% endfor %}</ul>
+    </div>
+    <div>
+      <h2>Catalogue</h2>
+      <p>Version <code>{{ catalog.version }}</code>, built {{ catalog.built_at | fdate }}.</p>
+      <ul class="inline">{% for l in site.footer.elsewhere %}<li><a href="{{ l.href }}">{{ l.label }}</a></li>{% endfor %}</ul>
+      <p class="supporters">{{ site.footer.supporters | md_inline }}</p>
+    </div>
+  </div>
+</footer>
+<script src="{{ asset('js/site.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

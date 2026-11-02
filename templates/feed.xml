@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>OpenGWAS news</title>
+  <subtitle>Data updates and announcements</subtitle>
+  <link href="{{ absolute('/news/feed.xml') }}" rel="self"/>
+  <link href="{{ absolute('/news/') }}"/>
+  <id>{{ absolute('/news/') }}</id>
+  <updated>{{ (items[0].date | isodate) if items else (now | isodate) }}T00:00:00Z</updated>
+  <author><name>OpenGWAS</name><email>{{ site.contact }}</email></author>
+{% for n in items %}
+  <entry>
+    <title>{{ n.title }}{% if n.kind == "catalogue" %}, {{ n.date | fdate }}{% endif %}</title>
+    <link href="{{ absolute(n.url) }}"/>
+    <id>{{ absolute(n.url) }}</id>
+    <updated>{{ n.date | isodate }}T00:00:00Z</updated>
+    <summary type="html">{{ n.summary | md_inline | forceescape }}</summary>
+  </entry>
+{% endfor %}
+</feed>

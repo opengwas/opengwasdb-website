@@ -1,0 +1,108 @@
+{
+ "demo": [
+  {
+   "store": "OGS-00009",
+   "variant": "rs7412 (APOE)",
+   "locus": "APOE",
+   "n_variants": 11191070,
+   "n_analyses": 2514,
+   "measured_at": "2026-10-24",
+   "commit": "3efc3b9",
+   "source_file": "opengwasdb_ogs00009_vs_ogs00010_queries.json",
+   "timings": {
+    "phewas": {
+     "ms": 45.315,
+     "n": 2514
+    },
+    "tophits": {
+     "ms": 11.595,
+     "n": 2960
+    },
+    "hm3": {
+     "ms": 469.849,
+     "n": 1193015,
+     "subset": 1206088
+    },
+    "regional": {
+     "ms": 2206.603,
+     "n": 9669654
+    },
+    "random_lookup_10_variants_100_analyses": {
+     "ms": 306.102,
+     "n": 999
+    },
+    "bulk": {
+     "ms": 8152.688,
+     "n": 9975895
+    }
+   }
+  },
+  {
+   "store": "OGS-00011",
+   "variant": "rs7903146 (TCF7L2)",
+   "locus": "TCF7L2",
+   "n_variants": 48069918,
+   "n_analyses": 3169,
+   "measured_at": "2026-11-01",
+   "commit": "ba42a75",
+   "source_file": "opengwasdb_ogs00011_hybrid_benchmark.json",
+   "timings": {
+    "phewas": {
+     "ms": 118.035,
+     "n": 3166
+    },
+    "tophits": {
+     "ms": 15.65,
+     "n": 8471
+    },
+    "hm3": {
+     "ms": 675.349,
+     "n": 1188389,
+     "subset": 1195931
+    },
+    "regional": {
+     "ms": 3025.529,
+     "n": 10291241
+    },
+    "random_lookup_10_variants_100_analyses": {
+     "ms": 2617.635,
+     "n": 119
+    },
+    "bulk": {
+     "ms": 23668.231,
+     "n": 9869010
+    }
+   }
+  }
+ ],
+ "size": [
+  {
+   "store": "OGS-00017",
+   "source_bytes": 2160735169593,
+   "store_bytes": 139094741874,
+   "source_from": "opengwasdb_ogs00016_finngen_benchmark_0_2_0.json",
+   "measured_at": "2026-11-02"
+  },
+  {
+   "store": "OGS-00011",
+   "source_bytes": 1511692806021,
+   "store_bytes": 166556322972,
+   "source_from": "opengwasdb_ogs00011_hybrid_benchmark.json",
+   "measured_at": "2026-11-02"
+  },
+  {
+   "store": "OGS-00009",
+   "source_bytes": 425402488477,
+   "store_bytes": 61882712579,
+   "source_from": "resources/inventories/ukb-b-restored-2026-10-11.tsv",
+   "measured_at": "2026-11-02"
+  }
+ ],
+ "sparse_example": {
+  "store": "OGS-00027",
+  "source_bytes": 2376838260,
+  "store_bytes": 2632409090,
+  "source_from": "opengwasdb_eqtlgen_ragged_benchmark.json",
+  "measured_at": "2026-11-02"
+ }
+}

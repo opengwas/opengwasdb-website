@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% set title = "Tools" %}
+{% set description = "Software that works with OpenGWAS data." %}
+{% set said = {"yes": "Yes", "in progress": "In progress", "no": "No", "unknown": "To be confirmed"} %}
+{% block main %}
+<div class="wrap">
+  <header class="page-head">
+    <h1>Tools</h1>
+    <p class="lede">Software that reads OpenGWAS data, and whether it works with the new store releases yet.</p>
+  </header>
+  <ul class="tools">
+  {% for t in tools %}
+    <li>
+      <h2><a href="{{ t.href }}">{{ t.name }}</a></h2>
+      <p class="lang">{{ t.language }}</p>
+      <p>{{ t.what | md_inline }}</p>
+      <dl class="compat">
+        <div><dt>New store releases</dt><dd class="status {{ t.new | replace(' ', '-') }}">{{ said[t.new] }}</dd></div>
+        <div><dt>Legacy OpenGWAS API</dt><dd class="status {{ t.legacy | replace(' ', '-') }}">{{ said[t.legacy] }}</dd></div>
+      </dl>
+    </li>
+  {% endfor %}
+  </ul>
+</div>
+{% endblock %}

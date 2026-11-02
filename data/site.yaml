@@ -1,0 +1,53 @@
+# Settings shared by every page: the menu, the transition notice and the footer.
+# Text fields accept Markdown, such as [a link](/about/).
+
+title: OpenGWAS
+base_url: https://opengwas.io
+description: >-
+  Harmonised, imputed GWAS summary statistics, released as compact stores you
+  can download or query.
+contact: ieu-opengwas@bristol.ac.uk
+
+nav:
+  - label: Data
+    href: /data/
+  - label: Tools
+    href: /tools/
+  - label: News
+    href: /news/
+  - label: Licensing
+    href: /licensing/
+  - label: About
+    href: /about/
+  # Becomes a link to https://platform.opengwas.io once the platform is live
+  # (decision 1): replace `soon: true` with `href: https://platform.opengwas.io`.
+  - label: Platform
+    soon: true
+    hint: platform.opengwas.io is not live yet
+
+# Shown under the header on every page during the grace period (decision 8).
+notice: >-
+  OpenGWAS is moving to a new catalogue, and the legacy service keeps running
+  for now. [What's changing](/transition/)
+
+footer:
+  about: >-
+    Run by the MRC Integrative Epidemiology Unit at the University of Bristol.
+    Free for non-commercial research.
+  policies:
+    - label: Terms of use
+      href: /legal/terms/
+    - label: Service description
+      href: /legal/service-description/
+    - label: Privacy notice
+      href: /legal/privacy/
+    - label: Accessibility
+      href: /legal/accessibility/
+  elsewhere:
+    - label: GitHub
+      href: https://github.com/opengwas
+    - label: News feed
+      href: /news/feed.xml
+  supporters: >-
+    Supported by Wellcome, the Royal Society, Cancer Research UK, NIHR Bristol
+    BRC, GSK, Biogen, BenevolentAI and Oracle Cloud Infrastructure.

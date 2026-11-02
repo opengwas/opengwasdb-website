@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set title = "Data" %}
+{% set description = "Browse the OpenGWAS Analysis Catalog: " ~ (totals.analyses | nf) ~ " analyses in " ~ totals.stores ~ " store releases." %}
+{% block main %}
+<div class="wrap">
+  <header class="page-head">
+    <h1>Data</h1>
+    <p class="lede">The catalogue lists {{ totals.analyses | nf }} analyses in {{ totals.stores }} store releases. Each store release is fixed once published, so an analysis can always be found again exactly as it was.</p>
+  </header>
+  {# SKELETON: catalogue search (SQLite in the browser, decision 7) and downloads come next. #}
+  {{ m.notice("**Search is being built.** It will search every analysis by trait, ancestry, tissue or source, straight from the catalogue file, with the whole catalogue available to download.") }}
+
+  <section class="section">
+    <h2>Store releases</h2>
+    {{ m.store_table(stores) }}
+  </section>
+
+  <section class="section">
+    <h2>Ancestry</h2>
+    <p class="intro">Analyses by the ancestry group each was assigned.</p>
+    {{ m.ancestry_bars(ancestry) }}
+  </section>
+</div>
+{% endblock %}
