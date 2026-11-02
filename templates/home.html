@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set h = home %}
+{% set c = home.words %}
+{% set tagline = c.title %}
+{% block main %}
+<div class="home wrap">
+  <section class="hero">
+    <div class="hero-text">
+      <h1>{{ c.title }}</h1>
+      <p>{{ c.lede | md_inline }}</p>
+    </div>
+    <ul class="points">
+      {% for p in c.points %}<li><a href="{{ p.href }}">{{ p.text | md_inline }}</a></li>{% endfor %}
+    </ul>
+
+    {% set d0 = h.demo[0] %}
+    <div class="demo" id="demo">
+      <div class="demo-head">
+        <fieldset class="store-pick"><legend class="visually-hidden">Store to show measurements for</legend>
+          {% for d in h.demo %}<label><input type="radio" name="dstore" value="{{ loop.index0 }}"{% if loop.first %} checked{% endif %}><span>{{ d.name }}</span></label>{% endfor %}
+        </fieldset>
+        <button type="button" class="play" id="dPlay" aria-pressed="false" hidden>Play</button>
+      </div>
+      <div class="matrix-wrap">
+        <p class="axis-x" id="axisX">{{ d0.axis_x }}</p>
+        <p class="axis-y" id="axisY">{{ d0.axis_y }}</p>
+        <svg class="matrix" viewBox="0 0 {{ h.cols * 13 - 3 }} {{ h.rows * 13 - 3 }}" aria-hidden="true">
+          {%- for r in range(h.rows) %}{% for col in range(h.cols) %}{% set i = r * h.cols + col %}<rect x="{{ col * 13 }}" y="{{ r * 13 }}" width="10" height="10" rx="2"{% if i in h.cells.hit %} class="hit"{% elif i in h.cells.near %} class="near"{% endif %}/>{% endfor %}{% endfor -%}
+        </svg>
+      </div>
+      <p class="caption">{{ c.demo.caption | md_inline }}</p>
+      <fieldset class="shapes"><legend class="visually-hidden">Query to run</legend>
+        {% for key, s in d0.shapes.items() %}
+        <label class="shape" data-shape="{{ key }}"><input type="radio" name="dshape" value="{{ key }}"{% if key == h.first_shape %} checked{% endif %}>
+          <span class="what">{{ s.what | md_inline }}<small data-sub="{{ key }}">{{ s.sub | safe }}</small></span><span class="t" data-t="{{ key }}">{{ s.time }}</span></label>
+        {% endfor %}
+      </fieldset>
+      <p class="result" id="dResult" aria-live="polite">{{ d0.shapes[h.first_shape].result }}</p>
+      <p class="fine" id="dFine">{{ d0.fine | safe }}</p>
+    </div>
+  </section>
+
+  <section class="section imputed" id="imputed">
+    <h2>{{ c.imputed.title }}</h2>
+    {{ h.imputed.body | md }}
+    <div class="imp" aria-hidden="true">
+      <span class="nm">{{ c.imputed.before }}</span>
+      <span class="cells">{% for x in h.imputed.before %}<i{% if x %} class="{{ x }}"{% endif %}></i>{% endfor %}</span>
+      <span class="nm">{{ c.imputed.after }}</span>
+      <span class="cells">{% for x in h.imputed.after %}<i{% if x %} class="{{ x }}"{% endif %}></i>{% endfor %}</span>
+    </div>
+    <div class="key" aria-hidden="true"><span><i class="o"></i>{{ c.imputed.key[0] }}</span><span><i class="m"></i>{{ c.imputed.key[1] }}</span><span><i></i>{{ c.imputed.key[2] }}</span></div>
+  </section>
+
+  <section class="section size" id="size">
+    <h2>{{ c.size.title }}</h2>
+    {{ h.size.body | md }}
+    <div class="key" aria-hidden="true"><span><i class="src"></i>{{ c.size.key[0] }}</span><span><i class="st"></i>{{ c.size.key[1] }}</span></div>
+    <div class="size-rows">
+      {% for r in h.size.rows %}
+      <div class="size-row"><span class="nm">{{ r.name }}</span>
+        <span class="bars" aria-hidden="true"><span class="src" style="width:{{ '%.2f' % r.source_pct }}%"></span><span class="st" style="width:{{ '%.2f' % r.store_pct }}%"></span></span>
+        <span class="lbl">{{ r.label | md_inline }}</span></div>
+      {% endfor %}
+    </div>
+    <p class="note">{{ h.size.note | md_inline }}</p>
+  </section>
+
+  <section class="section" id="ways">
+    <h2>{{ c.ways.title }}</h2>
+    <div class="ways">
+      {% for w in c.ways["items"] %}
+      <div class="way"><span class="status {{ w.tone }}">{{ w.status }}</span>
+        <h3>{{ w.title }}</h3>
+        <p>{{ w.text | md_inline }}</p>
+        {% if w.code is defined %}<pre><code>{{ w.code }}</code></pre>{% endif %}
+        {% if w.link is defined %}<a class="more" href="{{ w.link.href }}">{{ w.link.text }}</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section routes">
+    {% for r in h.routes %}
+    <div><h2>{{ r.title }}</h2>
+      <p>{{ r.text | md_inline }}</p>
+      <a class="more" href="{{ r.link.href }}">{{ r.link.text }}</a></div>
+    {% endfor %}
+  </section>
+
+  <section class="section" id="updates">
+    <h2>{{ c.updates.title }}</h2>
+    <p class="intro">{{ h.updates_intro | md_inline }}</p>
+    {{ m.updates(updates) }}
+    <a class="more" href="/news/">{{ c.updates.more }}</a>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="application/json" id="demo-data">{{ h.demo_json | safe }}</script>
+<script src="{{ asset('js/home-demo.js') }}" defer></script>
+{% endblock %}

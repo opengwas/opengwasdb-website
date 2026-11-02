@@ -1,0 +1,29 @@
+[workspace]
+name = "opengwasdb-website"
+description = "The opengwas.io static site: Markdown and the Analysis Catalog in, HTML out"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64"]
+version = "0.1.0"
+
+[dependencies]
+python = "3.13.*"
+jinja2 = ">=3.1"
+markdown-it-py = ">=3.0"
+mdit-py-plugins = ">=0.4"
+pyyaml = ">=6.0"
+pytest = ">=8.0"
+
+[tasks]
+# Build the whole site into _site/. The catalogue defaults to the OpenGWAS
+# server's copy; pass --catalog PATH (or set OPENGWAS_CATALOG) elsewhere.
+build = "python -m sitegen build"
+# Build, serve at http://localhost:8000/, and rebuild when a file changes.
+serve = "python -m sitegen serve"
+# Check that every internal link in _site/ points at a page that exists.
+check = "python -m sitegen check"
+test = "python -m pytest -q tests"
+# Server only: refresh data/benchmarks.json from the opengwasdb benchmark
+# reports and the Store sizes on disk.
+collect-benchmarks = "python scripts/collect_benchmarks.py"
+# Server only: rebuild the small test catalogue in tests/fixtures/catalog/.
+make-fixture = "python scripts/make_fixture_catalog.py"

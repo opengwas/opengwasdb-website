@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set title = page.title %}
+{% set description = page.meta.description | default("") %}
+{% block main %}
+<article class="wrap prose">
+  <header class="page-head">
+    <h1>{{ page.title }}</h1>
+    {% if page.meta.lede is defined %}<p class="lede">{{ page.meta.lede | md_inline }}</p>{% endif %}
+  </header>
+  {{ m.notice(page.meta.notice | default("")) }}
+  {{ body }}
+  {% if page.meta.updated is defined %}<p class="updated">Last updated {{ page.meta.updated | fdate }}.</p>{% endif %}
+</article>
+{% endblock %}

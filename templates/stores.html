@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set title = "Store releases" %}
+{% set description = "Every OpenGWAS store release in the current catalogue." %}
+{% block main %}
+<div class="wrap">
+  <header class="page-head">
+    <p class="crumb"><a href="/data/">Data</a></p>
+    <h1>Store releases</h1>
+    <p class="lede">A store release is one fixed, versioned collection of analyses from one source, with its own ID such as <code>{{ stores[0].id }}</code>.</p>
+  </header>
+  {{ m.store_table(stores) }}
+</div>
+{% endblock %}

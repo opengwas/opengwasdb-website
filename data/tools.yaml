@@ -1,0 +1,51 @@
+# Tools that work with OpenGWAS data, shown on /tools/.
+#
+# `new` and `legacy` say whether each tool works with the new Store Releases
+# and with the legacy OpenGWAS API. They must be true on the day they go live
+# (decision 11). Use one of:
+#   yes          works today
+#   in progress  being moved over
+#   no           does not, and no plans to
+#   unknown      not confirmed yet (shown as "To be confirmed")
+
+- name: opengwasdb
+  href: https://github.com/opengwas/opengwasdb
+  language: Python, command line
+  what: Read and query Store Releases on your own machine or cluster.
+  new: yes
+  legacy: no
+
+- name: TwoSampleMR
+  href: https://mrcieu.github.io/TwoSampleMR/
+  language: R
+  what: Mendelian randomisation using GWAS summary statistics.
+  new: in progress
+  legacy: yes
+
+- name: ieugwasr
+  href: https://mrcieu.github.io/ieugwasr/
+  language: R
+  what: Query OpenGWAS from R.
+  new: in progress
+  legacy: yes
+
+- name: ieugwaspy
+  href: https://github.com/MRCIEU/ieugwaspy
+  language: Python
+  what: Query OpenGWAS from Python.
+  new: unknown
+  legacy: yes
+
+- name: gwasglue2
+  href: https://mrcieu.github.io/gwasglue2/
+  language: R
+  what: Connect GWAS summary statistics to fine-mapping, colocalisation and Mendelian randomisation methods.
+  new: in progress
+  legacy: unknown
+
+- name: Genotype-Phenotype Map
+  href: https://gpmap.opengwas.io/
+  language: Web
+  what: Browse pleiotropy and shared causal variants across thousands of traits.
+  new: in progress
+  legacy: unknown

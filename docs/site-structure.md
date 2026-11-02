@@ -3,7 +3,8 @@
 A proposed sitemap, navigation and per-page content for the new `opengwas.io`.
 It follows [`decisions.md`](decisions.md). The home page was explored as a
 throwaway prototype, kept unmerged on the branch `prototype/home-variants`
-(folder `prototype/home/`).
+(folder `prototype/home/`). How the site is built and edited is in
+[`../CONTRIBUTING.md`](../CONTRIBUTING.md) (decision 12).
 
 ## Who the site is for
 
@@ -68,7 +69,8 @@ Each page lists its blocks in order, with where the content comes from.
 Content comes from three kinds of source:
 
 - **the catalogue**, read from `catalog.sqlite` in the browser or at build time;
-- **`summary.json`**, a small file the catalogue build emits beside the SQLite;
+- **numbers worked out from the catalogue at build time** and written into the
+  pages, so no page needs the SQL engine just to show a count;
 - **hand-written** Markdown or YAML.
 
 ### Home `/`
@@ -104,7 +106,7 @@ The page leads with what the new stores make possible.
 6. **Browse the catalogue** and **Commercial use**, using the variant A
    wording.
 7. **Data updates:** the last three, plus one line of current catalogue
-   counts, from `summary.json`.
+   counts, from the catalogue.
 8. **Transition notice** during the grace period.
 
 The catalogue-composition view (prototype variant C: a bar of Stores by source,
@@ -191,9 +193,8 @@ has a version, an effective date and links to its previous versions.
 | Input | Producer | Used by |
 |---|---|---|
 | `catalog.sqlite`, at an immutable versioned URL | `opengwasdb-stores` `pixi run catalog` | Data search (browser); Analysis and Store pages (build) |
-| `summary.json`, emitted with each version: counts, stores, changes | The catalogue build (new; the prototype fakes it with `build_summary.py` on the `prototype/home-variants` branch) | Home, news, footer |
 | `current` pointer: version id plus URL | The catalogue publish step | Every page that reads the catalogue |
-| Benchmark record per Store: source and store bytes, median query times per shape, date, commit, the build it was measured on | `opengwasdb` benchmark reports (today ad hoc, in `docs/benchmark-output/`) | Home query demo and size comparison; Store pages |
+| Benchmark record per Store: source and store bytes, median query times per shape, date, commit, the build it was measured on | `opengwasdb` benchmark reports (today ad hoc, in `docs/benchmark-output/`), collected into `data/benchmarks.json` on the server | Home query demo and size comparison; Store pages |
 | Markdown posts and pages; `tools.yaml` | Hand-written in this repo | News, about, licensing, transition, tools |
 
 ## Catalogue gaps found while sketching
@@ -239,10 +240,25 @@ assembly, MVP and eQTLGen licences).
   `10:112998590:C:T` is rs7903146 (TCF7L2), and `19:44908822:C:T` is rs7412
   (APOE).
 
+## Before launch
+
+Found while building the skeleton. Each is something the site says, or needs,
+that isn't true or available yet.
+
+- **The home page offers catalogue downloads** ("download the whole catalogue
+  as SQLite or TSV"), and the Data page doesn't have them yet. They come with
+  the Data page's search.
+- **"Available now" for local use** needs a pip or conda release of
+  `opengwasdb` and a way to download a store (decision 11).
+- **The benchmark reports have no public address**, so the demo's fine print
+  can't link to them.
+- **Every FinnGen Analysis is "Not yet assigned" an ancestry** in the
+  catalogue, so the FinnGen Store page says so.
+- **Tool statuses marked "To be confirmed"** in `data/tools.yaml`: ieugwaspy
+  with the new stores, and gwasglue2 and the Genotype-Phenotype Map with the
+  legacy API.
+
 ## Not decided
 
-- **The static site generator.** Plain HTML, Quarto (already used by the
-  stores site), Eleventy and Astro are all viable. The only hard requirement is
-  pre-rendering about 35k Analysis pages from SQLite at build time.
 - **Dark mode.** The logo PNG has black text on a transparent background, so
   dark mode needs a light-text variant of the logo.
