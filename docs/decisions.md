@@ -342,6 +342,40 @@ Agreed. The catalogue should **store** the values the front page needs:
   - Every catalogue version's files stay published, so a page that is open
     while a new version arrives keeps working.
 
+### 14. Hosting: in a container, on the Bristol build server for development
+
+- **The site and its catalogue files are served by nginx** from one server
+  block, `deploy/site.conf.template`.
+  - The container (`deploy/Dockerfile`, `deploy/compose.yaml`) runs it as an
+    unprivileged user.
+  - Until Docker access is arranged, the same block runs natively through
+    pixi.
+- **For development and feedback,** it is hosted on the OpenGWAS build server
+  in Bristol (`app-dc3-ogws-p0.services.bris.ac.uk`, port 8080). That server
+  is reachable inside the University network and over VPN, not from the
+  internet.
+- **The catalogue is served from the same address** as the pages, under
+  `/data/catalog/<version>/`.
+  - Until opengwas/opengwasdb-stores#424, it's a copy of the current version
+    built for browsing (`scripts/make_browse_catalog.py`), so its checksum
+    differs from the real catalogue's.
+- **Corrects decision 12.** opengwas.io and the legacy API run on an Oracle
+  Cloud VM (132.145.36.155), not on the server that holds the catalogue.
+  - **Building:** Bristol builds, because the catalogue and benchmarks are
+    there. Every five minutes, cron runs `deploy/update.sh` from a checkout
+    kept for hosting.
+    - It rebuilds when the branch or the catalogue changes.
+    - It checks every link, then switches to the new release in one rename,
+      keeping the previous release.
+  - **Production, decided at launch (#5):** either run the same container on
+    the VM and copy each release there, or keep it here behind a public proxy.
+- **Not chosen: GitHub Pages.**
+  - The catalogue would need a separate hostname with CORS.
+  - Pages allows one 404 page, so Analysis pages drawn in the browser (#6)
+    would be served as 404s.
+  - Pages caps a site at 1 GB, and the catalogue is expected to reach GBs
+    (ADR 0039).
+
 ## Still open
 
 Nothing blocks starting the design work.

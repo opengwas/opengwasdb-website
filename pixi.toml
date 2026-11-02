@@ -38,5 +38,16 @@ playwright-python = ">=1.40"
 install-browser = "python -m playwright install chromium"
 test-browser = "python -m pytest -q tests/browser"
 
+# The web server (nginx) for hosting the built site; see deploy/README.md.
+[feature.web.dependencies]
+nginx = ">=1.30"
+
+[feature.web.tasks]
+web-start = "python deploy/web.py start"
+web-stop = "python deploy/web.py stop"
+web-reload = "python deploy/web.py reload"
+web-status = "python deploy/web.py status"
+
 [environments]
 browser = ["browser"]
+web = ["web"]

@@ -1,0 +1,17 @@
+# Run the web server in a container:
+#
+#   docker compose -f deploy/compose.yaml up -d --build
+#
+# OPENGWAS_WEB_ROOT is the folder holding the built site in site/ (default
+# /data/opengwasdb/website/www). It is mounted read-only. Mount the folder, not
+# site/ itself: each rebuild replaces site/ with a new folder, which a mount of
+# site/ would not see.
+services:
+  web:
+    build: .
+    image: opengwas-website-web:latest
+    ports:
+      - "${OPENGWAS_WEB_PORT:-8080}:8080"
+    volumes:
+      - "${OPENGWAS_WEB_ROOT:-/data/opengwasdb/website/www}:/srv/www:ro"
+    restart: unless-stopped

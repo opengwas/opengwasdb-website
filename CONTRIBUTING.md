@@ -110,9 +110,15 @@ pixi run -e browser test-browser
 
 ## Publishing
 
-Not set up yet. The plan (decision 12) is for the OpenGWAS server to check
-every few minutes for a new commit on `main` or a new catalogue version, and
-if there is one, build the site and swap it into place. The server also needs:
+For development, the site is hosted on the OpenGWAS build server in Bristol,
+reachable over the University network and VPN at
+<http://app-dc3-ogws-p0.services.bris.ac.uk:8080/> (decision 14). Every five
+minutes it checks for a new commit or catalogue version, rebuilds, checks the
+links and switches to the new build. How that works, and how to move it into
+its container, is in [`deploy/README.md`](deploy/README.md).
+
+Whatever serves the site must provide (`deploy/site.conf.template` does all of
+this except HTTPS):
 
 - the site's 404 page for missing pages, and `/datasets/404.html` for missing
   pages under `/datasets/` (decision 8);
