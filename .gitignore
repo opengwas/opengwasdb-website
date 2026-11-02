@@ -1,7 +1,7 @@
 # Built site and its build/swap directories
 /_site/
-/_site.tmp/
-/_site.old/
+/_site.tmp*/
+/_site.old*/
 # pixi environments
 .pixi/
 __pycache__/

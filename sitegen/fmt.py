@@ -77,6 +77,15 @@ def fbytes(n: int) -> str:
     return f"{gb:.1f}{NBSP}GB"
 
 
+def fsize(n: int) -> str:
+    """File size, in decimal units: 70 KB, 1.1 MB, 31 MB"""
+    for unit, scale in (("GB", 1e9), ("MB", 1e6), ("KB", 1e3)):
+        if n >= scale:
+            v = n / scale
+            return f"{v:.1f}{NBSP}{unit}" if v < 10 else f"{round(v):,}{NBSP}{unit}"
+    return f"{n}{NBSP}bytes"
+
+
 def join_and(items) -> str:
     items = list(items)
     if len(items) < 2:

@@ -1,7 +1,8 @@
 name: Build
 
 # Builds the whole site from the small test catalogue on every pull request,
-# runs the tests, and checks every internal link. A PR that breaks the site
+# runs the tests, checks every internal link, and tests the Data page's
+# search in headless Chromium. A PR that breaks the site
 # fails here, before it is merged. Publishing happens on the OpenGWAS server,
 # not here: see CONTRIBUTING.md.
 
@@ -20,9 +21,14 @@ jobs:
       - uses: prefix-dev/setup-pixi@v0.10.1
         with:
           locked: true
+          environments: default browser
       - name: Tests
         run: pixi run test
       - name: Build the site from the test catalogue
         run: pixi run build --catalog tests/fixtures/catalog
       - name: Check internal links
         run: pixi run check
+      - name: Install headless Chromium
+        run: pixi run -e browser python -m playwright install --with-deps chromium
+      - name: Test the Data page search in a browser
+        run: pixi run -e browser test-browser

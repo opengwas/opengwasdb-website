@@ -14,6 +14,7 @@ data/
   benchmarks.json query timings and sizes for the home page (generated, see below)
 templates/        page layouts (Jinja)
 static/           CSS, JavaScript, fonts and images, served under /assets/
+  vendor/         third-party code, unchanged, with its licence and source
 sitegen/          the build
 tests/            tests, and a small copy of the catalogue for them
 ```
@@ -87,6 +88,14 @@ pixi run test
 pixi run build --catalog tests/fixtures/catalog && pixi run check
 ```
 
+Changes to the Data page's search (`static/js/catalogue-search.js`) also have
+browser tests, which check what the page shows against the catalogue:
+
+```sh
+pixi run -e browser install-browser   # once
+pixi run -e browser test-browser
+```
+
 ## Data that comes from elsewhere
 
 - **The Analysis Catalog** is read when the site is built, so every count,
@@ -107,4 +116,7 @@ if there is one, build the site and swap it into place. The server also needs:
 
 - the site's 404 page for missing pages, and `/datasets/404.html` for missing
   pages under `/datasets/` (decision 8);
-- `http://` redirected to `https://` (decision 9).
+- `http://` redirected to `https://` (decision 9);
+- the catalogue files under `/data/catalog/` served for range requests:
+  keep-alive or HTTP/2, `Accept-Ranges: bytes`, no gzip on `.sqlite`, and
+  `application/wasm` for `.wasm` (decision 13).

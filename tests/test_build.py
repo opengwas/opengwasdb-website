@@ -103,3 +103,16 @@ def test_pages_need_a_title(tmp_path):
     (tmp_path / "untitled.md").write_text("---\nlede: no title\n---\nBody\n")
     with pytest.raises(ValueError, match="needs a title"):
         content.load(tmp_path)
+
+
+def test_catalogue_versions_are_published_with_checksums(site):
+    import hashlib, json
+    out, _ = site
+    current = json.loads((out / "data/catalog/current.json").read_text())
+    assert current["version"] == (FIXTURE / "current").resolve().name
+    for name, f in current["files"].items():
+        local = out / f["url"].split("://", 1)[1].split("/", 1)[1]
+        assert hashlib.sha256(local.read_bytes()).hexdigest() == f["sha256"], name
+    for v in (FIXTURE / "versions").iterdir():
+        assert (out / "data/catalog" / v.name / "catalog.sqlite").is_file()
+        assert (out / "data/catalog" / v.name / "SHA256SUMS").is_file()

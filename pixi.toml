@@ -21,9 +21,22 @@ build = "python -m sitegen build"
 serve = "python -m sitegen serve"
 # Check that every internal link in _site/ points at a page that exists.
 check = "python -m sitegen check"
-test = "python -m pytest -q tests"
+test = "python -m pytest -q tests --ignore=tests/browser"
 # Server only: refresh data/benchmarks.json from the opengwasdb benchmark
 # reports and the Store sizes on disk.
 collect-benchmarks = "python scripts/collect_benchmarks.py"
 # Server only: rebuild the small test catalogue in tests/fixtures/catalog/.
 make-fixture = "python scripts/make_fixture_catalog.py"
+
+# Browser tests: drive the Data page's search in headless Chromium.
+#   pixi run -e browser install-browser   (once)
+#   pixi run -e browser test-browser
+[feature.browser.dependencies]
+playwright-python = ">=1.40"
+
+[feature.browser.tasks]
+install-browser = "python -m playwright install chromium"
+test-browser = "python -m pytest -q tests/browser"
+
+[environments]
+browser = ["browser"]
