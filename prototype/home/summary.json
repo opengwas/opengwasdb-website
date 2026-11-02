@@ -1,0 +1,375 @@
+{
+ "catalog": {
+  "version": "9df14f8dc3cceabf",
+  "built_at": "2026-11-01"
+ },
+ "totals": {
+  "analyses": 35109,
+  "stores": 10,
+  "sources": 5,
+  "completed_stores": 5,
+  "completed_analyses": 11159,
+  "ontology_mapped": 4568,
+  "ontology_terms": 2180
+ },
+ "counts": {
+  "store": {
+   "OGS-00006": 1400,
+   "OGS-00009": 2514,
+   "OGS-00011": 3169,
+   "OGS-00012": 1669,
+   "OGS-00013": 1368,
+   "OGS-00014": 1053,
+   "OGS-00015": 241,
+   "OGS-00016": 1691,
+   "OGS-00017": 2754,
+   "OGS-00027": 19250
+  },
+  "ancestry": {
+   "unassigned": 2957,
+   "AFR": 1368,
+   "AMR": 850,
+   "EAS": 241,
+   "EUR": 28002,
+   "META": 1691
+  },
+  "tissue": {
+   "unassigned": 14459,
+   "plasma": 1400,
+   "whole_blood": 19250
+  },
+  "effect_scale": {
+   "log_or": 8728,
+   "sd": 26381
+  },
+  "outcome_type": {
+   "binary": 10574,
+   "continuous": 24535
+  },
+  "trait_class": {
+   "molecular": 20650,
+   "phenotype": 14459
+  },
+  "coverage": {
+   "cis": 19250,
+   "gwas": 14459,
+   "signals_only": 1400
+  }
+ },
+ "stores": [
+  {
+   "id": "OGS-00006",
+   "label": "2023-chen-full-european",
+   "layout": "ragged",
+   "completion": "observed_only",
+   "coverage": "signals_only",
+   "n": 1400,
+   "validated_at": "2026-10-23T23:17:20.636194Z",
+   "source": "GWAS Catalog",
+   "title": "Chen et al. 2023 plasma metabolome, European"
+  },
+  {
+   "id": "OGS-00009",
+   "label": "ukb-b-full",
+   "layout": "dense",
+   "completion": "reference_completed",
+   "coverage": "gwas",
+   "n": 2514,
+   "validated_at": "2026-10-23T19:04:59.796463Z",
+   "source": "UK Biobank (MRC IEU)",
+   "title": "UK Biobank, MRC IEU analyses (ukb-b)"
+  },
+  {
+   "id": "OGS-00011",
+   "label": "eur-hybrid-full",
+   "layout": "hybrid",
+   "completion": "reference_completed",
+   "coverage": "gwas",
+   "n": 3169,
+   "validated_at": "2026-11-01T09:23:29.025384Z",
+   "source": "GWAS Catalog",
+   "title": "GWAS Catalog harmonised studies, European"
+  },
+  {
+   "id": "OGS-00012",
+   "label": "mvp-phs002453-eur",
+   "layout": "dense",
+   "completion": "reference_completed",
+   "coverage": "gwas",
+   "n": 1669,
+   "validated_at": "2026-10-23T13:56:13.510282Z",
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, European"
+  },
+  {
+   "id": "OGS-00013",
+   "label": "mvp-phs002453-afr",
+   "layout": "dense",
+   "completion": "observed_only",
+   "coverage": "gwas",
+   "n": 1368,
+   "validated_at": "2026-10-21T23:14:26.537566Z",
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, African"
+  },
+  {
+   "id": "OGS-00014",
+   "label": "mvp-phs002453-amr",
+   "layout": "dense",
+   "completion": "reference_completed",
+   "coverage": "gwas",
+   "n": 1053,
+   "validated_at": "2026-10-24T12:19:01.245683Z",
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, Admixed American"
+  },
+  {
+   "id": "OGS-00015",
+   "label": "mvp-phs002453-eas",
+   "layout": "dense",
+   "completion": "observed_only",
+   "coverage": "gwas",
+   "n": 241,
+   "validated_at": "2026-10-14T14:33:27.280235Z",
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, East Asian"
+  },
+  {
+   "id": "OGS-00016",
+   "label": "mvp-phs002453-meta-observed-only",
+   "layout": "dense",
+   "completion": "observed_only",
+   "coverage": "gwas",
+   "n": 1691,
+   "validated_at": "2026-10-21T05:45:53.208213Z",
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, multi-ancestry meta-analysis"
+  },
+  {
+   "id": "OGS-00017",
+   "label": "r13-full",
+   "layout": "dense",
+   "completion": "reference_completed",
+   "coverage": "gwas",
+   "n": 2754,
+   "validated_at": "2026-10-24T22:03:16.549481Z",
+   "source": "FinnGen",
+   "title": "FinnGen release 13"
+  },
+  {
+   "id": "OGS-00027",
+   "label": "eqtlgen-full",
+   "layout": "ragged",
+   "completion": "observed_only",
+   "coverage": "cis",
+   "n": 19250,
+   "validated_at": "2026-10-27T20:13:36.035875Z",
+   "source": "eQTLGen",
+   "title": "eQTLGen 2019 cis-eQTL, whole blood"
+  }
+ ],
+ "changes": [
+  {
+   "version": "9df14f8dc3cceabf",
+   "date": "2026-11-01T19:50:30",
+   "first": false,
+   "added": {
+    "OGS-00011": 3169
+   },
+   "changed": {},
+   "removed": {}
+  },
+  {
+   "version": "1b3a155d449bb84a",
+   "date": "2026-10-28T22:57:35",
+   "first": false,
+   "added": {
+    "OGS-00006": 1400,
+    "OGS-00009": 2514,
+    "OGS-00012": 1669,
+    "OGS-00013": 1368,
+    "OGS-00014": 1053,
+    "OGS-00015": 241,
+    "OGS-00016": 1691,
+    "OGS-00017": 2754
+   },
+   "changed": {
+    "OGS-00027": 19250
+   },
+   "removed": {}
+  },
+  {
+   "version": "ba67582c6f362968",
+   "date": "2026-10-23T19:14:24",
+   "first": false,
+   "added": {},
+   "changed": {
+    "OGS-00027": 19250
+   },
+   "removed": {}
+  },
+  {
+   "version": "c549c2b9f0109ba2",
+   "date": "2026-10-23T18:25:29",
+   "first": true,
+   "added": {
+    "OGS-00027": 19250
+   },
+   "changed": {},
+   "removed": {}
+  }
+ ],
+ "store_meta": {
+  "OGS-00006": {
+   "source": "GWAS Catalog",
+   "title": "Chen et al. 2023 plasma metabolome, European"
+  },
+  "OGS-00009": {
+   "source": "UK Biobank (MRC IEU)",
+   "title": "UK Biobank, MRC IEU analyses (ukb-b)"
+  },
+  "OGS-00011": {
+   "source": "GWAS Catalog",
+   "title": "GWAS Catalog harmonised studies, European"
+  },
+  "OGS-00012": {
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, European"
+  },
+  "OGS-00013": {
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, African"
+  },
+  "OGS-00014": {
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, Admixed American"
+  },
+  "OGS-00015": {
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, East Asian"
+  },
+  "OGS-00016": {
+   "source": "Million Veteran Program",
+   "title": "Million Veteran Program, multi-ancestry meta-analysis"
+  },
+  "OGS-00017": {
+   "source": "FinnGen",
+   "title": "FinnGen release 13"
+  },
+  "OGS-00027": {
+   "source": "eQTLGen",
+   "title": "eQTLGen 2019 cis-eQTL, whole blood"
+  }
+ },
+ "benchmarks": {
+  "demo": [
+   {
+    "id": "OGS-00009",
+    "name": "UK Biobank (ukb-b)",
+    "variant": "rs7412 (APOE)",
+    "locus": "APOE",
+    "n_variants": 11191070,
+    "n_analyses": 2514,
+    "layout": "dense",
+    "measured_at": "2026-10-24",
+    "commit": "3efc3b9",
+    "report": "opengwasdb_ogs00009_vs_ogs00010.html",
+    "timings": {
+     "phewas": {
+      "ms": 45.315,
+      "n": 2514
+     },
+     "tophits": {
+      "ms": 11.595,
+      "n": 2960
+     },
+     "hm3": {
+      "ms": 469.849,
+      "n": 1193015,
+      "subset": 1206088
+     },
+     "regional": {
+      "ms": 2206.603,
+      "n": 9669654
+     },
+     "random_lookup_10_variants_100_analyses": {
+      "ms": 306.102,
+      "n": 999
+     },
+     "bulk": {
+      "ms": 8152.688,
+      "n": 9975895
+     }
+    }
+   },
+   {
+    "id": "OGS-00011",
+    "name": "GWAS Catalog, European",
+    "variant": "rs7903146 (TCF7L2)",
+    "locus": "TCF7L2",
+    "n_variants": 48069918,
+    "n_analyses": 3169,
+    "layout": "hybrid",
+    "measured_at": "2026-11-01",
+    "commit": "ba42a75",
+    "report": "opengwasdb_ogs00011_hybrid_benchmark.html",
+    "timings": {
+     "phewas": {
+      "ms": 118.035,
+      "n": 3166
+     },
+     "tophits": {
+      "ms": 15.65,
+      "n": 8471
+     },
+     "hm3": {
+      "ms": 675.349,
+      "n": 1188389,
+      "subset": 1195931
+     },
+     "regional": {
+      "ms": 3025.529,
+      "n": 10291241
+     },
+     "random_lookup_10_variants_100_analyses": {
+      "ms": 2617.635,
+      "n": 119
+     },
+     "bulk": {
+      "ms": 23668.231,
+      "n": 9869010
+     }
+    }
+   }
+  ],
+  "size": [
+   {
+    "id": "OGS-00017",
+    "name": "FinnGen R13",
+    "source_bytes": 2160735169593,
+    "store_bytes": 139094741874,
+    "ratio": 15.53
+   },
+   {
+    "id": "OGS-00011",
+    "name": "GWAS Catalog, European",
+    "source_bytes": 1511692806021,
+    "store_bytes": 166556322972,
+    "ratio": 9.08
+   },
+   {
+    "id": "OGS-00009",
+    "name": "UK Biobank (ukb-b)",
+    "source_bytes": 425402488477,
+    "store_bytes": 61882712579,
+    "ratio": 6.87
+   }
+  ],
+  "sparse_example": {
+   "id": "OGS-00027",
+   "name": "eQTLGen cis-eQTL",
+   "source_bytes": 2376838260,
+   "store_bytes": 2632409090
+  }
+ }
+}

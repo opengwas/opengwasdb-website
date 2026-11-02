@@ -1,0 +1,765 @@
+<!doctype html>
+<!--
+  PROTOTYPE, throwaway. Question: what should the new opengwas.io home page look like?
+  Four variants of the home page, switchable via ?variant=D|A|B|C (D is the default)
+  (floating bar at the bottom, or the left/right arrow keys).
+  All numbers come from summary.json, built from the Analysis Catalog by build_summary.py.
+  Run: python3 prototype/home/serve.py
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenGWAS (home page prototype)</title>
+<meta name="description" content="Harmonised GWAS and QTL summary statistics, released as versioned stores.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;500&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ---- tokens: palette taken from the logo ---- */
+:root {
+  --teal: #21677e;   /* logo "gwas"; primary + links */
+  --taupe: #8a7967;
+  --yellow: #ffdb00; /* attention: transition notice only */
+  --orange: #d07232;
+  --plum: #822f5a;
+  --purple: #6a3b77;
+  --lime: #b5d334;   /* logo "open"; fills only, never text */
+  --ink: #000;       /* logo text is pure black */
+  --body: #262626;
+  --muted: #5c5c5c;
+  --rule: #e2e2e2;
+  --wash: #f4f6f6;
+  --paper: #fff;
+  --notice: #fff8cc;
+
+  --src-gwascat: var(--teal);
+  --src-ukb: var(--taupe);
+  --src-mvp: var(--plum);
+  --src-finngen: var(--lime);   /* fill only; labels on it use ink */
+  --src-eqtlgen: var(--orange);
+
+  --sans: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --mono: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+  /* 1.25 scale from a 17px base */
+  --s-1: 0.82rem; --s0: 1rem; --s1: 1.25rem; --s2: 1.5625rem; --s3: 1.95rem; --s4: 2.44rem; --s5: 3.05rem;
+  --measure: 66ch;
+  --page: 1120px;
+  --gutter: clamp(16px, 4vw, 32px);
+}
+* { box-sizing: border-box; }
+html { font-size: 106.25%; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--body); font: 400 var(--s0)/1.55 var(--sans); }
+a { color: var(--teal); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; border-radius: 2px; }
+h1, h2, h3 { color: var(--ink); line-height: 1.15; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+p { margin: 0; }
+.wrap { max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter); }
+.id { font-family: var(--mono); font-size: 0.92em; letter-spacing: 0; white-space: nowrap; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---- shared chrome ---- */
+.site-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; padding-top: 18px; padding-bottom: 14px; }
+.site-header img { height: 52px; width: auto; display: block; }
+.menu-btn { display: none; font: inherit; font-weight: 500; color: var(--ink); background: var(--paper); border: 1px solid var(--ink); border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+.site-nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; padding: 0; }
+.site-nav a { color: var(--ink); text-decoration: none; font-weight: 500; padding: 6px 0; display: inline-block; }
+.site-nav a:hover { color: var(--teal); text-decoration: underline; }
+.site-nav .soon { color: var(--muted); font-weight: 500; padding: 6px 0; display: inline-block; }
+.site-nav .soon small { font-size: var(--s-1); font-weight: 400; margin-left: 4px; border: 1px solid var(--rule); border-radius: 999px; padding: 0 7px; }
+.notice { background: var(--notice); border-top: 3px solid var(--yellow); }
+.notice .wrap { padding-top: 10px; padding-bottom: 10px; font-size: 0.94rem; }
+.notice a { color: var(--ink); font-weight: 500; }
+
+.site-footer { background: var(--wash); margin-top: 96px; padding: 48px 0 96px; font-size: 0.94rem; }
+.site-footer .wrap { display: grid; grid-template-columns: 1.4fr 1fr 1.2fr; gap: 32px; }
+.site-footer h2 { font-size: var(--s0); margin-bottom: 8px; }
+.site-footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.site-footer p + p { margin-top: 8px; }
+.site-footer .supporters { color: var(--muted); }
+
+/* source marker: half of a logo "bean" */
+.bean { display: inline-block; width: 9px; height: 15px; border-radius: 8px 2px 2px 8px; vertical-align: -2px; margin-right: 8px; flex: none; }
+
+/* section rhythm, shared */
+.section { margin-top: 72px; }
+.section > h2 { font-size: var(--s2); margin-bottom: 20px; }
+.lede { font-size: var(--s1); line-height: 1.45; max-width: 40ch; color: var(--body); }
+.updates { list-style: none; margin: 0; padding: 0; max-width: 72ch; }
+.updates li { display: grid; grid-template-columns: 9.5em 1fr; gap: 4px 20px; padding: 14px 0; border-top: 1px solid var(--rule); }
+.updates time { color: var(--muted); font-variant-numeric: tabular-nums; }
+.more { display: inline-block; margin-top: 16px; font-weight: 500; }
+
+/* ===================== Variant A: search first ===================== */
+.vA .hero { padding-top: 64px; }
+.vA h1 { font-size: clamp(var(--s3), 5vw, var(--s5)); max-width: 18ch; }
+.vA .search { margin-top: 28px; display: flex; max-width: 760px; border: 2px solid var(--ink); border-radius: 8px; overflow: hidden; background: var(--paper); }
+.vA .search:focus-within { outline: 3px solid var(--teal); outline-offset: 3px; }
+.vA .search input { flex: 1; min-width: 0; border: 0; font: inherit; font-size: var(--s1); padding: 16px 18px; background: transparent; color: var(--ink); }
+.vA .search input:focus { outline: none; }
+.vA .search button { border: 0; background: var(--ink); color: #fff; font: inherit; font-weight: 700; padding: 0 26px; cursor: pointer; }
+.vA .search button:hover { background: var(--teal); }
+.vA .try { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: baseline; color: var(--muted); }
+.vA .try a { color: var(--ink); background: var(--wash); border-radius: 999px; padding: 4px 12px; text-decoration: none; }
+.vA .try a:hover { background: #e6ecee; }
+.vA .proto-msg { margin-top: 10px; color: var(--teal); min-height: 1.5em; }
+.vA .facts { margin-top: 36px; max-width: 62ch; font-size: var(--s1); line-height: 1.5; }
+.vA .facts strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.vA .routes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.vA .route { border-top: 3px solid var(--ink); padding-top: 18px; }
+.vA .route h3 { font-size: var(--s1); margin-bottom: 8px; }
+.vA .route p { color: var(--body); }
+
+/* ===================== Variant B: how it works ===================== */
+.vB .hero { padding-top: 72px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: end; }
+.vB h1 { font-size: clamp(var(--s3), 4.6vw, var(--s5)); max-width: 16ch; }
+.vB .hero p { font-size: var(--s1); line-height: 1.45; max-width: 36ch; }
+.vB .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); counter-reset: step; }
+.vB .step { position: relative; padding: 0 28px 0 0; counter-increment: step; }
+.vB .step + .step { padding-left: 28px; border-left: 1px solid var(--rule); }
+.vB .marker { display: flex; gap: 4px; margin-bottom: 18px; }
+.vB .marker span { width: 22px; height: 38px; }
+.vB .marker span:first-child { border-radius: 19px 3px 3px 19px; }
+.vB .marker span:last-child { border-radius: 3px 19px 19px 3px; }
+.vB .step h3 { font-size: var(--s1); margin-bottom: 8px; }
+.vB .step h3::before { content: counter(step) ". "; color: var(--muted); font-weight: 400; }
+.vB .step .figure { margin-top: 14px; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.vB .step .figure span { display: block; font-weight: 400; color: var(--muted); }
+.vB .tools { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: baseline; }
+.vB .tools a { font-weight: 500; }
+.vB .audiences { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.vB .aud { padding: 28px 32px; }
+.vB .aud + .aud { border-left: 1px solid var(--rule); background: var(--wash); }
+.vB .aud h3 { font-size: var(--s2); margin-bottom: 10px; }
+.vB .aud p + p { margin-top: 10px; }
+
+/* ===================== Variant C: catalogue ledger ===================== */
+.vC .hero { padding-top: 56px; }
+.vC h1 { font-size: clamp(var(--s3), 4.6vw, var(--s4)); }
+.vC .hero p { margin-top: 12px; font-size: var(--s1); max-width: 60ch; }
+.vC .bar { margin-top: 32px; display: flex; height: 112px; gap: 3px; }
+.vC .seg { position: relative; min-width: 6px; color: #fff; text-decoration: none; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; overflow: hidden; transform-origin: left; }
+.vC .seg:first-child { border-radius: 56px 4px 4px 56px; padding-left: 26px; }
+.vC .seg:last-child { border-radius: 4px 56px 56px 4px; }
+.vC .seg .lbl { display: inline-block; width: max-content; }
+.vC .seg .id { font-size: var(--s-1); white-space: nowrap; opacity: 0.9; }
+.vC .seg b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vC .seg:hover, .vC .seg:focus-visible { filter: brightness(1.12); }
+.vC .seg.narrow .lbl { display: none; }
+.vC .legend { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 28px; list-style: none; padding: 0; }
+.vC .legend li { display: flex; align-items: baseline; }
+.vC .legend .n { color: var(--muted); margin-left: 8px; font-variant-numeric: tabular-nums; }
+.vC .cols { display: grid; grid-template-columns: 1fr 300px; gap: 56px; align-items: start; }
+.vC table { width: 100%; border-collapse: collapse; font-size: 0.96rem; }
+.vC caption { text-align: left; font-size: var(--s2); font-weight: 700; color: var(--ink); margin-bottom: 16px; }
+.vC th { text-align: left; font-weight: 500; color: var(--muted); padding: 8px 12px 8px 0; border-bottom: 2px solid var(--ink); }
+.vC td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.vC td.num, .vC th.num { text-align: right; font-variant-numeric: tabular-nums; padding-right: 0; }
+.vC td .src { display: flex; align-items: baseline; }
+.vC .completed, .vC td.cov { white-space: nowrap; }
+.vC .anc { margin-top: 40px; }
+.vC .anc h2 { font-size: var(--s1); margin-bottom: 12px; }
+.vC .anc-row { display: grid; grid-template-columns: 9em 1fr 5em; gap: 12px; align-items: center; padding: 4px 0; }
+.vC .anc-row .track { height: 10px; background: var(--wash); border-radius: 5px; overflow: hidden; }
+.vC .anc-row .fill { height: 100%; background: var(--teal); border-radius: 5px; }
+.vC .anc-row .num { text-align: right; font-variant-numeric: tabular-nums; }
+.vC aside h2 { font-size: var(--s1); margin-bottom: 4px; }
+.vC .timeline { list-style: none; margin: 0; padding: 0; }
+.vC .timeline li { position: relative; padding: 14px 0 14px 22px; border-left: 2px solid var(--rule); margin-left: 5px; }
+.vC .timeline li::before { content: ""; position: absolute; left: -7px; top: 20px; width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--teal); }
+.vC .timeline li:first-child::before { background: var(--teal); }
+.vC .timeline time { display: block; color: var(--muted); font-size: 0.92rem; }
+.vC .actions { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 28px; font-weight: 500; }
+@media (prefers-reduced-motion: no-preference) {
+  .vC .seg { animation: grow 700ms cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i) * 45ms); }
+  @keyframes grow { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
+}
+
+
+/* ===================== Variant D: the architecture ===================== */
+.vD .hero { padding-top: 56px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-areas: "text demo" "points demo"; grid-template-rows: auto 1fr; gap: 0 56px; align-items: start; }
+.vD .hero-text { grid-area: text; }
+.vD .demo { grid-area: demo; }
+.vD .points { grid-area: points; list-style: none; margin: 36px 0 0; padding: 0; max-width: 30ch; }
+.vD .points li { border-top: 1px solid var(--rule); }
+.vD .points a { display: block; padding: 12px 0; color: var(--ink); text-decoration: none; font-weight: 500; }
+.vD .points a:hover { color: var(--teal); text-decoration: underline; }
+.vD h1 { font-size: clamp(var(--s3), 4.4vw, var(--s5)); max-width: 13ch; }
+.vD .hero-text p { margin-top: 20px; font-size: var(--s1); line-height: 1.45; max-width: 34ch; }
+.vD .demo { border: 1px solid var(--rule); border-radius: 12px; padding: 20px 22px 18px; }
+.vD fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.vD .demo-head { display: flex; justify-content: space-between; align-items: center; gap: 10px 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.vD .store-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.vD .play { font: inherit; font-size: 0.88rem; font-weight: 500; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.vD .play:hover { border-color: var(--ink); }
+.vD .caption { margin-top: 8px; font-size: 0.86rem; color: var(--muted); }
+.vD .store-pick label { position: relative; }
+.vD .store-pick input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.vD .store-pick span { display: block; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--rule); font-size: 0.92rem; font-weight: 500; }
+.vD .store-pick input:checked + span { background: var(--ink); border-color: var(--ink); color: #fff; }
+.vD .store-pick input:focus-visible + span { outline: 3px solid var(--teal); outline-offset: 2px; }
+.vD .matrix-wrap { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; gap: 6px 10px; }
+.vD .axis-x { grid-column: 2; font-size: var(--s-1); color: var(--muted); font-variant-numeric: tabular-nums; }
+.vD .axis-y { grid-row: 2; writing-mode: vertical-rl; transform: rotate(180deg); font-size: var(--s-1); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.vD .matrix { grid-column: 2; grid-row: 2; width: 100%; height: auto; display: block; }
+.vD .matrix rect { fill: #e8eded; }
+.vD .matrix rect.hit { fill: var(--teal); }
+.vD .matrix rect.near { fill: #b9d3db; }
+@media (prefers-reduced-motion: no-preference) { .vD .matrix rect { transition: fill 220ms ease; } }
+.vD .shapes { margin-top: 16px; border-top: 1px solid var(--rule); }
+.vD .shape { display: grid; grid-template-columns: 1fr auto; gap: 0 16px; align-items: baseline; padding: 9px 10px 9px 12px; border-bottom: 1px solid var(--rule); border-left: 3px solid transparent; cursor: pointer; position: relative; }
+.vD .shape input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.vD .shape .what { color: var(--ink); font-weight: 500; }
+.vD .shape .what small { display: block; font-weight: 400; color: var(--muted); font-size: 0.88rem; }
+.vD .shape .t { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.vD .shape:has(input:checked) { border-left-color: var(--teal); background: var(--wash); }
+.vD .shape::after { content: ""; position: absolute; left: -3px; bottom: -1px; height: 2px; width: 0; background: var(--teal); }
+.vD .shape.playing::after { animation: dwell var(--dwell, 3.4s) linear forwards; }
+@keyframes dwell { to { width: calc(100% + 3px); } }
+.vD .shape:has(input:focus-visible) { outline: 3px solid var(--teal); outline-offset: -3px; }
+.vD .result { margin-top: 12px; font-size: var(--s1); color: var(--ink); font-variant-numeric: tabular-nums; }
+.vD .fine { margin-top: 6px; font-size: 0.86rem; color: var(--muted); }
+
+.vD .size > p, .vD .imputed > p { max-width: 62ch; }
+.vD .imputed > p + p { margin-top: 10px; }
+.vD .imp { display: grid; grid-template-columns: 8.5em minmax(0, 1fr); gap: 10px 18px; align-items: center; max-width: 760px; margin-top: 26px; }
+.vD .imp .nm { font-weight: 500; color: var(--ink); }
+.vD .cells { display: grid; grid-template-columns: repeat(30, 1fr); gap: 3px; }
+.vD .cells i { aspect-ratio: 1; border-radius: 2px; background: #e8eded; }
+.vD .cells i.o { background: var(--teal); }
+.vD .cells i.m { background: var(--lime); }
+.vD .size-rows { margin-top: 28px; display: grid; gap: 22px; max-width: 860px; }
+.vD .size-row { display: grid; grid-template-columns: 12em 1fr; gap: 6px 24px; align-items: center; }
+.vD .size-row .nm { font-weight: 500; color: var(--ink); }
+.vD .bars { display: grid; gap: 4px; }
+.vD .bars span { display: block; height: 14px; border-radius: 3px 7px 7px 3px; }
+.vD .bars .src { background: #d8dede; }
+.vD .bars .st { background: var(--teal); }
+.vD .size-row .lbl { grid-column: 2; font-size: 0.92rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.vD .size-row .lbl b { color: var(--ink); }
+.vD .size .note { margin-top: 22px; color: var(--muted); font-size: 0.94rem; max-width: 62ch; }
+.vD .key { display: flex; gap: 20px; margin-top: 18px; font-size: 0.9rem; color: var(--muted); }
+.vD .key i { display: inline-block; width: 18px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+
+.vD .ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.vD .way h3 { font-size: var(--s1); margin: 10px 0 8px; }
+.vD .status { font-size: 0.88rem; color: var(--muted); display: inline-flex; align-items: center; gap: 7px; }
+.vD .status::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--dot); }
+.vD pre { margin: 14px 0 0; background: var(--wash); border-radius: 6px; padding: 12px 14px; font: 0.86rem/1.5 var(--mono); white-space: pre; overflow-x: auto; color: var(--ink); }
+.vD .routes2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.vD .routes2 > div { border-top: 3px solid var(--ink); padding-top: 18px; }
+.vD .routes2 h3 { font-size: var(--s1); margin-bottom: 8px; }
+.vD .news-intro { margin: -8px 0 12px; color: var(--muted); }
+@media (max-width: 860px) {
+  .vD .hero { grid-template-columns: 1fr; grid-template-areas: "text" "demo" "points"; grid-template-rows: none; gap: 32px; }
+  .vD .points { margin-top: 0; max-width: none; }
+  .vD h1 { max-width: 16ch; }
+  .vD .ways { grid-template-columns: 1fr; gap: 32px; }
+}
+@media (max-width: 600px) {
+  .vD .hero { padding-top: 32px; }
+  .vD .demo { padding: 16px 14px 14px; border-radius: 10px; }
+  .vD .size-row { grid-template-columns: 1fr; }
+  .vD .imp { grid-template-columns: 1fr; gap: 6px; }
+  .vD .imp .cells + .nm { margin-top: 10px; }
+  .vD .size-row .lbl { grid-column: 1; }
+  .vD .routes2 { grid-template-columns: 1fr; gap: 32px; }
+}
+
+/* ---- narrow screens ---- */
+@media (max-width: 860px) {
+  .vA .routes, .vB .steps { grid-template-columns: 1fr 1fr; gap: 36px 28px; }
+  .vB .step, .vB .step + .step { padding: 0; border: 0; }
+  .vB .hero { grid-template-columns: 1fr; gap: 20px; }
+  .vC .cols { grid-template-columns: 1fr; gap: 40px; }
+  .site-footer .wrap { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  html { font-size: 100%; }
+  .site-header img { height: 44px; }
+  .menu-btn { display: block; }
+  .site-nav { display: none; flex-basis: 100%; }
+  .site-nav.open { display: block; }
+  .site-nav ul { flex-direction: column; gap: 0; border-top: 1px solid var(--rule); }
+  .site-nav li { border-bottom: 1px solid var(--rule); }
+  .site-nav a, .site-nav .soon { display: block; padding: 12px 0; }
+  .section { margin-top: 56px; }
+  .vA .hero, .vB .hero, .vC .hero { padding-top: 32px; }
+  .vA .search { flex-direction: column; }
+  .vA .search button { padding: 14px; }
+  .vA .routes, .vB .steps, .vB .audiences { grid-template-columns: 1fr; }
+  .vB .aud + .aud { border-left: 0; border-top: 1px solid var(--rule); }
+  .vB .aud { padding: 22px 20px; }
+  .updates li { grid-template-columns: 1fr; }
+  .vC .bar { height: 76px; }
+  .vC .seg { padding: 6px; }
+  .vC .seg:first-child { padding-left: 14px; }
+  .vC thead { display: none; }
+  .vC tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  .vC td { border: 0; padding: 0; }
+  .vC td.store { grid-column: 1 / -1; font-weight: 500; color: var(--ink); }
+  .vC td.completed { color: var(--muted); }
+  .vC td.cov { display: none; }
+  .vC .anc-row { grid-template-columns: 7.5em 1fr 4.5em; }
+  .site-footer .wrap { grid-template-columns: 1fr; }
+}
+
+/* ---- prototype switcher (not part of the design) ---- */
+.proto-bar { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 100; display: flex; align-items: center; gap: 4px; background: #111; color: #fff; border-radius: 999px; padding: 6px; box-shadow: 0 6px 24px rgba(0,0,0,.35); font: 500 14px/1 system-ui, sans-serif; }
+.proto-bar button { background: transparent; color: #fff; border: 0; width: 34px; height: 34px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+.proto-bar button:hover { background: #333; }
+.proto-bar span { padding: 0 10px; white-space: nowrap; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a href="./" aria-label="OpenGWAS home"><img src="assets/logo.png" alt="IEU OpenGWAS project" width="481" height="180"></a>
+    <button type="button" class="menu-btn" aria-expanded="false" aria-controls="mainnav">Menu</button>
+    <nav class="site-nav" id="mainnav" aria-label="Main">
+      <ul>
+        <li><a href="#data">Data</a></li>
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#news">News</a></li>
+        <li><a href="#licensing">Licensing</a></li>
+        <li><a href="#about">About</a></li>
+        <li><span class="soon" title="platform.opengwas.io is not live yet">Platform<small>soon</small></span></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<div class="notice" role="note">
+  <div class="wrap">OpenGWAS is moving to a new catalogue, and the legacy service keeps running for now. <a href="#transition">What's changing</a></div>
+</div>
+
+<main id="app" class="wrap" tabindex="-1"><p style="padding:64px 0">Loading catalogue summary…</p></main>
+
+<footer class="site-footer">
+  <div class="wrap" id="footer"></div>
+</footer>
+
+<div class="proto-bar" role="toolbar" aria-label="Prototype variant switcher">
+  <button type="button" id="prev" aria-label="Previous variant">‹</button>
+  <span id="vlabel"></span>
+  <button type="button" id="next" aria-label="Next variant">›</button>
+</div>
+
+<script>
+const VARIANTS = { D: "The architecture", A: "Search first", B: "How it works", C: "Catalogue ledger" };
+const SOURCE_VAR = {
+  "GWAS Catalog": "--src-gwascat", "UK Biobank (MRC IEU)": "--src-ukb",
+  "Million Veteran Program": "--src-mvp", "FinnGen": "--src-finngen", "eQTLGen": "--src-eqtlgen",
+};
+const ANCESTRY = { EUR: "European", AFR: "African", AMR: "Admixed American", EAS: "East Asian", META: "Multi-ancestry meta-analysis", unassigned: "Not yet assigned" };
+const nf = n => Number(n).toLocaleString("en-GB");
+const fdate = s => new Date(s.slice(0, 10) + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const col = src => `var(${SOURCE_VAR[src] || "--muted"})`;
+const bean = src => `<span class="bean" style="background:${col(src)}" aria-hidden="true"></span>`;
+const list = xs => xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " and " + xs.at(-1);
+
+function sources(d) {
+  const by = {};
+  for (const s of d.stores) { (by[s.source] ??= { n: 0, stores: 0 }); by[s.source].n += s.n; by[s.source].stores++; }
+  return Object.entries(by).sort((a, b) => b[1].n - a[1].n);
+}
+
+// One plain sentence per catalogue version, generated from its changes.
+function describeChange(c, d) {
+  const meta = id => d.store_meta[id] || { source: "unknown source", title: id };
+  const sum = o => Object.values(o).reduce((a, b) => a + b, 0);
+  const parts = [];
+  const added = Object.keys(c.added);
+  if (added.length) {
+    const n = sum(c.added);
+    if (c.first) parts.push(`Catalogue published with ${nf(n)} analyses from ${list(added.map(id => meta(id).title))}.`);
+    else if (added.length === 1) parts.push(`${nf(n)} analyses added: ${meta(added[0]).title} (<span class="id">${added[0]}</span>).`);
+    else parts.push(`${nf(n)} analyses added in ${added.length} store releases, from ${list([...new Set(added.map(id => meta(id).source))])}.`);
+  }
+  const changed = Object.keys(c.changed);
+  if (changed.length) parts.push(`Metadata updated for ${nf(sum(c.changed))} analyses in ${list(changed.map(id => meta(id).title))}.`);
+  const removed = Object.keys(c.removed);
+  if (removed.length) parts.push(`${nf(sum(c.removed))} analyses withdrawn.`);
+  return parts.join(" ");
+}
+const updatesList = (d, k = 3) => `<ul class="updates">${d.changes.slice(0, k).map(c =>
+  `<li><time datetime="${c.date.slice(0, 10)}">${fdate(c.date)}</time><p>${describeChange(c, d)}</p></li>`).join("")}</ul>`;
+
+/* ---------------- Variant A: search first ---------------- */
+function A(d) {
+  const t = d.totals;
+  return `<div class="vA">
+  <section class="hero">
+    <h1>Find GWAS and QTL summary statistics</h1>
+    <form class="search" role="search" onsubmit="event.preventDefault(); protoSearch(this.q.value)">
+      <label class="visually-hidden" for="q">Search the catalogue</label>
+      <input id="q" name="q" type="search" autocomplete="off" placeholder="Search ${nf(t.analyses)} analyses">
+      <button type="submit">Search</button>
+    </form>
+    <div class="try">Try
+      ${["type 2 diabetes", "coronary artery disease", "LDL", "PCSK9"].map(x => `<a href="#" onclick="event.preventDefault(); protoSearch('${x}')">${x}</a>`).join("")}
+    </div>
+    <p class="proto-msg" id="protoMsg" aria-live="polite"></p>
+    <p class="facts">Published summary statistics, harmonised to one format and released as versioned stores you can download or query.
+      The catalogue holds <strong>${nf(t.analyses)}</strong> analyses in <strong>${t.stores}</strong> store releases from <strong>${t.sources}</strong> sources,
+      and was last updated on ${fdate(d.catalog.built_at)}.</p>
+  </section>
+  <section class="section routes" aria-label="Ways in">
+    <div class="route" id="data"><h3>Browse the catalogue</h3>
+      <p>Filter by trait, ancestry, tissue or source. Download the whole catalogue as SQLite or TSV.</p>
+      <a class="more" href="#data">Open the catalogue</a></div>
+    <div class="route" id="tools"><h3>Use it in your analysis</h3>
+      <p>Download store releases to query on your own machine or cluster, or reach them from TwoSampleMR and other tools.</p>
+      <a class="more" href="#tools">See the tools</a></div>
+    <div class="route" id="licensing"><h3>Commercial use</h3>
+      <p>Free for non-commercial research. Companies need a licence, and licence fees keep the resource running.</p>
+      <a class="more" href="#licensing">Licensing</a></div>
+  </section>
+  <section class="section" id="news">
+    <h2>Data updates</h2>
+    ${updatesList(d)}
+    <a class="more" href="#news">All news</a>
+  </section>
+</div>`;
+}
+window.protoSearch = q => {
+  document.getElementById("q").value = q;
+  document.getElementById("protoMsg").textContent = `In the real site this opens the catalogue at /data/?q=${encodeURIComponent(q)}`;
+};
+
+/* ---------------- Variant B: how it works ---------------- */
+function B(d) {
+  const t = d.totals, anc = d.counts.ancestry || {};
+  const srcNames = sources(d).map(([s]) => s);
+  const steps = [
+    ["--teal", "--taupe", "Collect", `Published summary statistics from ${list(srcNames)}.`, `${t.sources} sources`, ""],
+    ["--yellow", "--plum", "Harmonise", "Alleles aligned to one reference, quality checked, and each analysis assigned an ancestry group.",
+      `${Object.keys(anc).filter(k => !["META", "unassigned"].includes(k)).length} ancestry groups`, "plus multi-ancestry meta-analyses"],
+    ["--orange", "--purple", "Complete", "Missing variants filled in from a matched reference panel. Imputed values are always marked as imputed.",
+      `${nf(t.completed_analyses)} analyses`, `in ${t.completed_stores} of ${t.stores} stores so far`],
+    ["--lime", "--teal", "Release", `Each store is an immutable release with its own ID, such as <span class="id">${d.stores.at(-1).id}</span>, so an analysis can always be reproduced.`,
+      `${t.stores} store releases`, `${nf(t.analyses)} analyses`],
+  ];
+  return `<div class="vB">
+  <section class="hero">
+    <h1>GWAS summary statistics, harmonised once and ready for any analysis</h1>
+    <p>OpenGWAS collects published summary statistics, puts them in one consistent format, and releases them as versioned stores you can download or query.</p>
+  </section>
+  <section class="section" id="data" aria-label="How it works">
+    <ol class="steps">${steps.map(([c1, c2, h, p, fig, sub]) => `
+      <li class="step"><div class="marker" aria-hidden="true"><span style="background:var(${c1})"></span><span style="background:var(${c2})"></span></div>
+        <h3>${h}</h3><p>${p}</p><p class="figure">${fig}${sub ? `<span>${sub}</span>` : ""}</p></li>`).join("")}
+    </ol>
+    <a class="more" href="#data">Browse the catalogue</a>
+  </section>
+  <section class="section" id="tools">
+    <h2>Works with the tools you already use</h2>
+    <div class="tools">${["TwoSampleMR", "ieugwasr", "ieugwaspy", "gwasglue2", "Genotype-Phenotype Map", "opengwasdb CLI"].map(x => `<a href="#tools">${x}</a>`).join("")}</div>
+  </section>
+  <section class="section audiences" id="licensing">
+    <div class="aud"><h3>For research</h3>
+      <p>Free for non-commercial research. Download whole stores or query what you need, and cite OpenGWAS and the original studies.</p>
+      <a class="more" href="#about">How to cite</a></div>
+    <div class="aud"><h3>For companies</h3>
+      <p>A commercial licence gives you access for its duration. What you download is yours to use, within each source's own terms, which we show for every analysis.</p>
+      <a class="more" href="#licensing">Commercial licence</a></div>
+  </section>
+  <section class="section" id="news">
+    <h2>Data updates</h2>
+    ${updatesList(d)}
+    <a class="more" href="#news">All news</a>
+  </section>
+</div>`;
+}
+
+/* ---------------- Variant C: catalogue ledger ---------------- */
+function C(d) {
+  const t = d.totals, anc = d.counts.ancestry || {};
+  const rank = Object.fromEntries(sources(d).map(([s], i) => [s, i]));
+  const stores = [...d.stores].sort((a, b) => rank[a.source] - rank[b.source] || b.n - a.n);
+  const maxAnc = Math.max(...Object.values(anc));
+  const pretty = { reference_completed: "Reference-completed", observed_only: "Observed only" };
+  const cov = { gwas: "Genome-wide", cis: "cis regions", signals_only: "Signals only" };
+  return `<div class="vC">
+  <section class="hero">
+    <h1>What's in OpenGWAS today</h1>
+    <p>${nf(t.analyses)} analyses in ${t.stores} store releases, from ${t.sources} sources. This page always shows the current catalogue:
+      version <span class="id">${d.catalog.version.slice(0, 8)}</span>, built ${fdate(d.catalog.built_at)}.</p>
+    <div class="bar" role="list" aria-label="Analyses per store release">
+      ${stores.map((s, i) => `<a role="listitem" href="#store-${s.id}" class="seg" style="flex:${s.n} 1 0;background:${col(s.source)};color:${s.source === "FinnGen" ? "var(--ink)" : "#fff"};--i:${i}"
+        title="${s.id}: ${s.title}, ${nf(s.n)} analyses"><span class="lbl"><span class="id">${s.id}</span><br><b>${nf(s.n)}</b></span></a>`).join("")}
+    </div>
+    <ul class="legend">${sources(d).map(([s, v]) => `<li>${bean(s)}${s}<span class="n">${nf(v.n)}</span></li>`).join("")}</ul>
+  </section>
+  <div class="section cols">
+    <div id="data">
+      <table>
+        <caption>Store releases</caption>
+        <thead><tr><th>Store</th><th class="cov">Coverage</th><th>Completion</th><th class="num">Analyses</th></tr></thead>
+        <tbody>${stores.map(s => `<tr id="store-${s.id}">
+          <td class="store"><span class="src">${bean(s.source)}<span><span class="id">${s.id}</span> ${s.title}</span></span></td>
+          <td class="cov">${cov[s.coverage] || s.coverage}</td>
+          <td class="completed">${pretty[s.completion] || s.completion}</td>
+          <td class="num">${nf(s.n)}</td></tr>`).join("")}
+        </tbody>
+      </table>
+      <div class="anc">
+        <h2>By ancestry</h2>
+        ${Object.entries(anc).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<div class="anc-row"><span>${ANCESTRY[k] || k}</span>
+          <span class="track"><span class="fill" style="display:block;width:${(100 * n / maxAnc).toFixed(1)}%"></span></span><span class="num">${nf(n)}</span></div>`).join("")}
+      </div>
+      <div class="actions"><a href="#data">Browse all analyses</a><a href="#data">Download the catalogue</a><a href="#licensing">Commercial use</a></div>
+    </div>
+    <aside id="news" aria-label="Catalogue changes">
+      <h2>Changes</h2>
+      <ol class="timeline">${d.changes.map(c => `<li><time datetime="${c.date.slice(0, 10)}">${fdate(c.date)}</time>${describeChange(c, d)}</li>`).join("")}</ol>
+    </aside>
+  </div>
+</div>`;
+}
+
+
+/* ---------------- Variant D: the architecture ---------------- */
+const COLS = 36, ROWS = 20, DWELL = 3400;
+const SHAPE_INFO = {
+  phewas: { what: "One variant in every analysis", sub: b => `${b.variant}, a PheWAS` },
+  tophits: { what: "Top hits for one analysis", sub: () => "from the store's built-in index" },
+  hm3: { what: "The HapMap3 variants for one analysis", sub: b => `${(b.timings.hm3.subset / 1e6).toFixed(1)} million variants, ready for LD score regression` },
+  regional: { what: "A 1 Mb region in every analysis", sub: b => `around ${b.locus}` },
+  random_lookup_10_variants_100_analyses: { what: "10 variants in 100 analyses", sub: () => "picked at random" },
+  bulk: { what: "One whole analysis, genome-wide", sub: () => "every association it has" },
+};
+const SHAPE_KEYS = Object.keys(SHAPE_INFO);
+// Cells each query reads, in the order it reads them. Rows are variants, columns analyses.
+function cellsFor(shape) {
+  const hit = [], near = [], k = (r, c) => r * COLS + c, col = 11;
+  if (shape === "phewas") for (let c = 0; c < COLS; c++) hit.push(k(8, c));
+  if (shape === "regional") for (let c = 0; c < COLS; c++) for (let r = 11; r <= 13; r++) hit.push(k(r, c));
+  if (shape === "bulk") for (let r = 0; r < ROWS; r++) hit.push(k(r, col));
+  if (shape === "tophits") { for (let r = 0; r < ROWS; r++) near.push(k(r, col)); [3, 4, 9, 15].forEach(r => hit.push(k(r, col))); }
+  if (shape === "hm3") { const sub = [1, 3, 6, 8, 10, 13, 15, 18]; for (let r = 0; r < ROWS; r++) (sub.includes(r) ? hit : near).push(k(r, col)); }
+  if (shape === "random_lookup_10_variants_100_analyses") for (const r of [2, 7, 16]) for (const c of [4, 9, 17, 23, 30]) hit.push(k(r, c));
+  return { hit, near: new Set(near) };
+}
+const fms = ms => ms < 10 ? `${ms.toFixed(1)}\u00a0ms` : ms < 1000 ? `${Math.round(ms)}\u00a0ms` : `${(ms / 1000).toFixed(1)}\u00a0s`;
+const fgb = bytes => { const gb = bytes / 1e9; return gb >= 1000 ? `${(gb / 1000).toFixed(1)}\u00a0TB` : gb >= 10 ? `${nf(Math.round(gb))}\u00a0GB` : `${gb.toFixed(1)}\u00a0GB`; };
+const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+let dStore = 0, dShape = "phewas", autoplay = null, timer = null, hovering = false;
+
+// A fixed pattern for one analysis: which variants the source reported, and which the store imputed.
+const IMP = "ooo-oo--oooo-o-ooo--o-ooo-o--o".split("");
+const STILL_MISSING = new Set([7, 20]);
+
+function D(d) {
+  const t = d.totals, B = d.benchmarks, gw = (d.counts.coverage || {}).gwas;
+  const ratios = B.size.map(b => b.ratio), src = B.size.reduce((a, b) => a + b.source_bytes, 0), st = B.size.reduce((a, b) => a + b.store_bytes, 0);
+  const maxSrc = Math.max(...B.size.map(b => b.source_bytes)), sp = B.sparse_example;
+  const rects = [];
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) rects.push(`<rect x="${c * 13}" y="${r * 13}" width="10" height="10" rx="2"/>`);
+  return `<div class="vD">
+  <section class="hero">
+    <div class="hero-text">
+      <h1>An engine for GWAS summary data</h1>
+      <p>OpenGWAS harmonises published GWAS, imputes them to a shared set of variants, and stores thousands of analyses as one compact table. Reading across variants, regions or analyses takes milliseconds to seconds.</p>
+    </div>
+    <ul class="points">
+      <li><a href="#imputed">Imputed against matched reference panels, with every imputed value flagged</a></li>
+      <li><a href="#size">About a tenth of the size of the source files</a></li>
+      <li><a href="#demo">Milliseconds for a PheWAS, seconds for a whole region</a></li>
+      <li><a href="#tools">Use it on your laptop, a cluster or from your analysis tools</a></li>
+    </ul>
+    <div class="demo" id="demo">
+      <div class="demo-head">
+        <fieldset class="store-pick"><legend class="visually-hidden">Store to show measurements for</legend>
+          ${B.demo.map((b, i) => `<label><input type="radio" name="dstore" value="${i}" ${i === dStore ? "checked" : ""}><span>${b.name}</span></label>`).join("")}
+        </fieldset>
+        <button type="button" class="play" id="dPlay" aria-pressed="true">Pause</button>
+      </div>
+      <div class="matrix-wrap">
+        <p class="axis-x" id="axisX"></p>
+        <p class="axis-y" id="axisY"></p>
+        <svg class="matrix" viewBox="0 0 ${COLS * 13 - 3} ${ROWS * 13 - 3}" aria-hidden="true">${rects.join("")}</svg>
+      </div>
+      <p class="caption">Rows are variants and columns are analyses. Highlighted squares are what the query reads.</p>
+      <fieldset class="shapes"><legend class="visually-hidden">Query to run</legend>
+        ${SHAPE_KEYS.map(k => `<label class="shape" data-shape="${k}"><input type="radio" name="dshape" value="${k}" ${k === dShape ? "checked" : ""}>
+          <span class="what">${SHAPE_INFO[k].what}<small data-sub="${k}"></small></span><span class="t" data-t="${k}"></span></label>`).join("")}
+      </fieldset>
+      <p class="result" id="dResult" aria-live="polite"></p>
+      <p class="fine" id="dFine"></p>
+    </div>
+  </section>
+
+  <section class="section imputed" id="imputed">
+    <h2>Imputed, and marked as imputed</h2>
+    <p>Each genome-wide store is completed against an LD reference panel matched to its ancestry, so analyses from different studies line up on the same variants.
+      Every imputed value is flagged, and any query can ask for observed values only.</p>
+    <p>So far ${nf(t.completed_analyses)} of ${nf(gw)} genome-wide analyses are imputed. The rest are observed-only for now.</p>
+    <div class="imp" aria-hidden="true">
+      <span class="nm">As published</span>
+      <span class="cells">${IMP.map(c => `<i class="${c === "o" ? "o" : ""}"></i>`).join("")}</span>
+      <span class="nm">In the store</span>
+      <span class="cells">${IMP.map((c, i) => `<i class="${c === "o" ? "o" : STILL_MISSING.has(i) ? "" : "m"}"></i>`).join("")}</span>
+    </div>
+    <div class="key"><span><i style="background:var(--teal)"></i>Observed</span><span><i style="background:var(--lime)"></i>Imputed</span><span><i style="background:#e8eded"></i>Missing</span></div>
+  </section>
+
+  <section class="section size" id="size">
+    <h2>About a tenth of the size</h2>
+    <p>Imputed genome-wide stores are ${Math.round(Math.min(...ratios))} to ${Math.round(Math.max(...ratios))} times smaller than the files they were built from, even with the imputed values added.
+      Across these three, ${fgb(src)} of source files became ${fgb(st)}: small enough to keep whole on your own disk or cluster.</p>
+    <div class="key"><span><i style="background:#d8dede"></i>Source files</span><span><i style="background:var(--teal)"></i>Store</span></div>
+    <div class="size-rows">${B.size.map(b => `
+      <div class="size-row"><span class="nm">${b.name}</span>
+        <span class="bars" aria-hidden="true"><span class="src" style="width:${(100 * b.source_bytes / maxSrc).toFixed(2)}%"></span><span class="st" style="width:${(100 * b.store_bytes / maxSrc).toFixed(2)}%"></span></span>
+        <span class="lbl">${fgb(b.source_bytes)} of source files, <b>${fgb(b.store_bytes)}</b> as a store, ${b.ratio.toFixed(1)} times smaller</span></div>`).join("")}
+    </div>
+    <p class="note">Sparse data doesn't shrink. eQTLGen's significant cis results were already compact: ${fgb(sp.source_bytes)} as source files and ${fgb(sp.store_bytes)} as a store.</p>
+  </section>
+
+  <section class="section" id="tools">
+    <h2>Use it where you work</h2>
+    <div class="ways">
+      <div class="way"><span class="status" style="--dot:var(--lime)">Available now</span>
+        <h3>On your own machine</h3>
+        <p>Download a store once and query it as often as you like, on a laptop or a cluster.</p>
+        <pre>opengwasdb query-phewas \
+  OGS-00009.opengwasdb rs7412</pre></div>
+      <div class="way"><span class="status" style="--dot:#c9c9c9">Coming soon</span>
+        <h3>Through the platform</h3>
+        <p>Send queries to hosted stores at platform.opengwas.io, without downloading anything.</p></div>
+      <div class="way"><span class="status" style="--dot:var(--orange)">In progress</span>
+        <h3>From your analysis tools</h3>
+        <p>TwoSampleMR, ieugwasr, gwasglue2 and the Genotype-Phenotype Map are moving to the new stores.</p>
+        <a class="more" href="#tools">See the tools</a></div>
+    </div>
+  </section>
+
+  <section class="section routes2">
+    <div id="data"><h3>Browse the catalogue</h3>
+      <p>Search ${nf(t.analyses)} analyses by trait, ancestry, tissue or source, and download the whole catalogue as SQLite or TSV.</p>
+      <a class="more" href="#data">Open the catalogue</a></div>
+    <div id="licensing"><h3>Commercial use</h3>
+      <p>Free for non-commercial research. Companies need a licence, and licence fees keep the resource running.</p>
+      <a class="more" href="#licensing">Licensing</a></div>
+  </section>
+
+  <section class="section" id="news">
+    <h2>Data updates</h2>
+    <p class="news-intro">The catalogue holds ${nf(t.analyses)} analyses in ${t.stores} store releases, last updated ${fdate(d.catalog.built_at)}.</p>
+    ${updatesList(d)}
+    <a class="more" href="#news">All news</a>
+  </section>
+</div>`;
+}
+
+function updateD() {
+  const b = data.benchmarks.demo[dStore], tm = b.timings[dShape];
+  document.getElementById("axisX").textContent = `${nf(b.n_analyses)} analyses`;
+  document.getElementById("axisY").textContent = `${nf(b.n_variants)} variants`;
+  for (const k of SHAPE_KEYS) {
+    document.querySelector(`[data-t="${k}"]`).textContent = fms(b.timings[k].ms);
+    document.querySelector(`[data-sub="${k}"]`).textContent = SHAPE_INFO[k].sub(b);
+  }
+  document.querySelector(`input[name="dshape"][value="${dShape}"]`).checked = true;
+  const { hit, near } = cellsFor(dShape), order = new Map(hit.map((c, i) => [c, i]));
+  const step = reducedMotion() ? 0 : Math.min(28, 700 / hit.length);
+  document.querySelectorAll(".vD .matrix rect").forEach((r, i) => {
+    r.setAttribute("class", order.has(i) ? "hit" : near.has(i) ? "near" : "");
+    r.style.transitionDelay = order.has(i) ? `${Math.round(order.get(i) * step)}ms` : "0ms";
+  });
+  document.getElementById("dResult").textContent = `${nf(tm.n)} associations in ${fms(tm.ms)}.`;
+  document.getElementById("dFine").innerHTML = `Median of warm-cache runs on one server, on the published imputed release <span class="id">${b.id}</span>, measured ${fdate(b.measured_at)}. Times include imputed values. <a href="#">Benchmark report</a>`;
+  markPlaying();
+}
+function markPlaying() {
+  document.querySelectorAll(".vD .shape").forEach(l => l.classList.remove("playing"));
+  if (autoplay && !hovering) {
+    const l = document.querySelector(`.vD .shape[data-shape="${dShape}"]`);
+    void l.offsetWidth;  // restart the dwell bar
+    l.style.setProperty("--dwell", `${DWELL}ms`);
+    l.classList.add("playing");
+  }
+}
+function tick() { if (autoplay && !hovering) { dShape = SHAPE_KEYS[(SHAPE_KEYS.indexOf(dShape) + 1) % SHAPE_KEYS.length]; updateD(); } }
+function setAutoplay(on) {
+  autoplay = on;
+  clearInterval(timer);
+  timer = on ? setInterval(tick, DWELL) : null;
+  const btn = document.getElementById("dPlay");
+  if (btn) { btn.textContent = on ? "Pause" : "Play"; btn.setAttribute("aria-pressed", String(on)); }
+  markPlaying();
+}
+function bindD() {
+  document.querySelectorAll('input[name="dstore"]').forEach(i => i.onchange = () => { dStore = +i.value; updateD(); });
+  // Choosing a query yourself stops the tour.
+  document.querySelectorAll('input[name="dshape"]').forEach(i => i.onchange = () => { dShape = i.value; setAutoplay(false); updateD(); });
+  document.getElementById("dPlay").onclick = () => setAutoplay(!autoplay);
+  const demo = document.getElementById("demo");
+  demo.onmouseenter = () => { hovering = true; markPlaying(); };
+  demo.onmouseleave = () => { hovering = false; if (autoplay) { setAutoplay(true); } };
+  updateD();
+  setAutoplay(autoplay ?? !reducedMotion());
+}
+
+function footer(d) {
+  return `
+  <div><h2>OpenGWAS</h2>
+    <p>Run by the MRC Integrative Epidemiology Unit at the University of Bristol. Free for non-commercial research.</p>
+    <p>Contact <a href="mailto:ieu-opengwas@bristol.ac.uk">ieu-opengwas@bristol.ac.uk</a></p></div>
+  <div><h2>Policies</h2>
+    <ul><li><a href="#">Terms of use</a></li><li><a href="#">Service description</a></li><li><a href="#">Privacy notice</a></li><li><a href="#">Accessibility</a></li><li><a href="#">Service status</a></li></ul></div>
+  <div><h2>Catalogue</h2>
+    <p>Version <span class="id">${d.catalog.version}</span>, built ${fdate(d.catalog.built_at)}.</p>
+    <p class="supporters">Supported by Wellcome, the Royal Society, Cancer Research UK, NIHR Bristol BRC, GSK, Biogen, BenevolentAI and Oracle Cloud Infrastructure.</p></div>`;
+}
+
+const RENDER = { D, A, B, C };
+let data;
+function current() { const v = new URLSearchParams(location.search).get("variant"); return RENDER[v] ? v : "D"; }
+function render() {
+  const v = current();
+  document.getElementById("app").innerHTML = RENDER[v](data);
+  document.getElementById("vlabel").textContent = `${v}: ${VARIANTS[v]}`;
+  fitBarLabels();
+  clearInterval(timer);
+  if (v === "D") bindD();
+}
+// Show a segment's label only if it fits inside the segment.
+function fitBarLabels() {
+  for (const seg of document.querySelectorAll(".vC .seg")) {
+    seg.classList.remove("narrow");
+    const lbl = seg.querySelector(".lbl"), cs = getComputedStyle(seg);
+    const room = seg.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    if (lbl.scrollWidth > room) seg.classList.add("narrow");
+  }
+}
+addEventListener("resize", fitBarLabels);
+function go(step) {
+  const keys = Object.keys(VARIANTS), i = keys.indexOf(current());
+  const next = keys[(i + step + keys.length) % keys.length];
+  const u = new URL(location); u.searchParams.set("variant", next); history.replaceState(null, "", u);
+  render();
+}
+document.querySelector(".menu-btn").onclick = e => {
+  const open = document.getElementById("mainnav").classList.toggle("open");
+  e.currentTarget.setAttribute("aria-expanded", open);
+  e.currentTarget.textContent = open ? "Close" : "Menu";
+};
+document.getElementById("prev").onclick = () => go(-1);
+document.getElementById("next").onclick = () => go(1);
+addEventListener("keydown", e => {
+  if (e.target.closest("input, textarea, [contenteditable]")) return;
+  if (e.key === "ArrowLeft") go(-1);
+  if (e.key === "ArrowRight") go(1);
+});
+fetch("summary.json").then(r => r.json()).then(d => {
+  data = d;
+  document.getElementById("footer").innerHTML = footer(d);
+  render();
+}).catch(err => {
+  document.getElementById("app").innerHTML = `<p style="padding:64px 0">Could not load summary.json (${err.message}). Run <code>python3 prototype/home/serve.py</code> and open the page from that server.</p>`;
+});
+</script>
+</body>
+</html>
