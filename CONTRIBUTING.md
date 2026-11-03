@@ -114,8 +114,8 @@ For development, the site is hosted on the OpenGWAS build server in Bristol,
 reachable over the University network and VPN at
 <http://app-dc3-ogws-p0.services.bris.ac.uk:8080/> (decision 14). Every five
 minutes it checks for a new commit or catalogue version, rebuilds, checks the
-links and switches to the new build. How that works, and how to move it into
-its container, is in [`deploy/README.md`](deploy/README.md).
+links and switches to the new build. How that works, and how to run its
+container, is in [`deploy/README.md`](deploy/README.md).
 
 Whatever serves the site must provide (`deploy/site.conf.template` does all of
 this except HTTPS):

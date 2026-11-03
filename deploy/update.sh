@@ -8,7 +8,8 @@
 # Settings, from the environment:
 #   OPENGWAS_WEB_BASE    everything the hosted site uses     (/data/opengwasdb/website)
 #   OPENGWAS_WEB_BRANCH  the branch to publish               (main)
-#   OPENGWAS_WEB_SERVER  native: keep deploy/web.py's nginx running; container: leave it to Docker
+#   OPENGWAS_WEB_SERVER  container: the server is Docker's (deploy/compose.yaml)  (container)
+#                        native: keep deploy/web.py's nginx running instead
 #   OPENGWAS_CATALOG     the Analysis Catalog root           (/data/opengwasdb/stores/catalog)
 #
 # Layout of OPENGWAS_WEB_BASE:
@@ -21,7 +22,7 @@ set -euo pipefail
 
 BASE=${OPENGWAS_WEB_BASE:-/data/opengwasdb/website}
 BRANCH=${OPENGWAS_WEB_BRANCH:-main}
-SERVER=${OPENGWAS_WEB_SERVER:-native}
+SERVER=${OPENGWAS_WEB_SERVER:-container}
 CATALOG=${OPENGWAS_CATALOG:-/data/opengwasdb/stores/catalog}
 REPO="$BASE/repo"
 export PATH="$HOME/.pixi/bin:$PATH" OPENGWAS_WEB_ROOT="$BASE/www" OPENGWAS_WEB_RUN="$BASE/run"

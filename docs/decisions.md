@@ -348,8 +348,7 @@ Agreed. The catalogue should **store** the values the front page needs:
   block, `deploy/site.conf.template`.
   - The container (`deploy/Dockerfile`, `deploy/compose.yaml`) runs it as an
     unprivileged user.
-  - Until Docker access is arranged, the same block runs natively through
-    pixi.
+  - Where Docker isn't available, the same block runs natively through pixi.
 - **For development and feedback,** it is hosted on the OpenGWAS build server
   in Bristol (`app-dc3-ogws-p0.services.bris.ac.uk`, port 8080). That server
   is reachable inside the University network and over VPN, not from the
