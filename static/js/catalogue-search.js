@@ -181,7 +181,7 @@
   };
   const CELLS = {
     store: r => {
-      const st = C.stores[r.store_id] || { short: r.store_id, colour: "taupe" };
+      const st = C.stores[r.store_id] || { short: r.store_id, colour: "sand" };
       return `<td class="st"><span class="bean" style="background:var(--${esc(st.colour)})" aria-hidden="true"></span>${esc(st.short)}</td>`;
     },
     ancestry: r => `<td class="anc-c">${esc(C.ancestry[r.ancestry_category ?? "unassigned"] || r.ancestry_category)}</td>`,

@@ -1,4 +1,4 @@
-/* opengwas.io. Palette from the logo; type is Atkinson Hyperlegible, self-hosted. */
+/* opengwas.io. Palette from the logo (static/img/logo.svg); type is Atkinson Hyperlegible, self-hosted. */
 
 @font-face { font-family: "Atkinson Hyperlegible Next"; font-style: normal; font-weight: 400 700; font-display: swap;
   src: url(../fonts/atkinson-hyperlegible-next-latin.woff2) format("woff2");
@@ -21,21 +21,21 @@
 
 /* ---- tokens ---- */
 :root {
-  --teal: #21677e;   /* logo "gwas"; primary and links */
-  --taupe: #8a7967;
-  --yellow: #ffdb00; /* attention: the transition notice only */
-  --orange: #d07232;
-  --plum: #822f5a;
-  --purple: #6a3b77;
-  --lime: #b5d334;   /* logo "open"; fills only, never text */
-  --ink: #000;       /* the logo's text is pure black */
+  /* the logo's six half-discs; only teal and plum are dark enough for text */
+  --teal: #447576;       /* primary and links: 5.2:1 on white, 4.8:1 on --wash */
+  --sand: #cfbba0;       /* fills only */
+  --gold: #d7ad60;       /* fills only: the transition notice, imputed values */
+  --plum: #7b4c69;
+  --terracotta: #cc8a65; /* fills only */
+  --sage: #879769;       /* fills only */
+  --ink: #163439;        /* the logo's wordmark */
   --body: #262626;
   --muted: #5c5c5c;
   --rule: #e2e2e2;
   --wash: #f4f6f6;
   --empty: #e8eded;
   --paper: #fff;
-  --notice: #fff8cc;
+  --notice: #f8efdc;     /* a tint of --gold */
 
   --sans: "Atkinson Hyperlegible Next", system-ui, sans-serif;
   --mono: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
@@ -70,7 +70,7 @@ main:focus { outline: none; }
 
 /* ---- header, notice, footer ---- */
 .site-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; padding-top: 18px; padding-bottom: 14px; }
-.site-header img { height: 52px; width: auto; display: block; }
+.site-header img { height: 38px; width: auto; display: block; }
 .menu-btn { font: inherit; font-weight: 500; color: var(--ink); background: var(--paper); border: 1px solid var(--ink); border-radius: 6px; padding: 6px 14px; cursor: pointer; }
 .menu-btn:not([hidden]) { display: none; }
 .site-nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; padding: 0; }
@@ -78,7 +78,7 @@ main:focus { outline: none; }
 .site-nav a:hover, .site-nav a[aria-current] { color: var(--teal); text-decoration: underline; }
 .site-nav .soon { color: var(--muted); font-weight: 500; padding: 6px 0; display: inline-block; }
 .site-nav .soon small { font-size: var(--s-1); font-weight: 400; margin-left: 4px; border: 1px solid var(--rule); border-radius: 999px; padding: 0 7px; }
-.notice { background: var(--notice); border-top: 3px solid var(--yellow); }
+.notice { background: var(--notice); border-top: 3px solid var(--gold); }
 .notice .wrap { padding-top: 10px; padding-bottom: 10px; font-size: 0.94rem; }
 .notice a { color: var(--ink); font-weight: 500; }
 
@@ -104,7 +104,7 @@ main:focus { outline: none; }
 .crumb { margin-bottom: 12px; color: var(--muted); font-size: 0.94rem; }
 .callout { background: var(--wash); border-left: 3px solid var(--teal); border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 0 0 28px; max-width: var(--measure); }
 .callout p + p { margin-top: 8px; }
-.tag { display: inline-block; font-size: var(--s-1); font-weight: 500; border: 1px solid var(--orange); color: #8a3f10; border-radius: 999px; padding: 0 8px; vertical-align: 1px; }
+.tag { display: inline-block; font-size: var(--s-1); font-weight: 500; border: 1px solid var(--terracotta); color: #8a3f10; border-radius: 999px; padding: 0 8px; vertical-align: 1px; }
 .updated { margin-top: 40px; color: var(--muted); font-size: 0.94rem; }
 
 .updates { list-style: none; margin: 0; padding: 0; max-width: 72ch; }
@@ -219,8 +219,8 @@ th[aria-sort] .sort::after { opacity: 1; }
 /* status dots, shared by the home page and the tools page */
 .status { display: inline-flex; align-items: center; gap: 7px; }
 .status::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #c9c9c9; flex: none; }
-.status.now::before, .status.yes::before { background: var(--lime); }
-.status.progress::before, .status.in-progress::before { background: var(--orange); }
+.status.now::before, .status.yes::before { background: var(--sage); }
+.status.progress::before, .status.in-progress::before { background: var(--terracotta); }
 .status.no::before { background: var(--plum); }
 
 /* ===================== home ===================== */
@@ -251,7 +251,7 @@ th[aria-sort] .sort::after { opacity: 1; }
 .matrix { grid-column: 2; grid-row: 2; width: 100%; height: auto; display: block; }
 .matrix rect { fill: var(--empty); }
 .matrix rect.hit { fill: var(--teal); }
-.matrix rect.near { fill: #b9d3db; }
+.matrix rect.near { fill: #bdcfcf; }  /* a tint of --teal */
 @media (prefers-reduced-motion: no-preference) { .matrix rect { transition: fill 220ms ease; } }
 .demo .caption { margin-top: 8px; font-size: 0.86rem; color: var(--muted); }
 .shapes { margin-top: 16px; border-top: 1px solid var(--rule); }
@@ -275,7 +275,8 @@ th[aria-sort] .sort::after { opacity: 1; }
 .cells { display: grid; grid-template-columns: repeat(30, 1fr); gap: 3px; }
 .cells i { aspect-ratio: 1; border-radius: 2px; background: var(--empty); }
 .cells i.o, .key i.o { background: var(--teal); }
-.cells i.m, .key i.m { background: var(--lime); }
+/* imputed in gold: sage would be only 1.6:1 against the teal of observed values */
+.cells i.m, .key i.m { background: var(--gold); }
 .key { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 18px; font-size: 0.9rem; color: var(--muted); }
 .key i { display: inline-block; width: 18px; height: 10px; border-radius: 2px; margin-right: 6px; background: var(--empty); }
 .key i.src, .bars .src { background: #d8dede; }
@@ -334,7 +335,7 @@ th[aria-sort] .sort::after { opacity: 1; }
 }
 @media (max-width: 600px) {
   html { font-size: 100%; }
-  .site-header img { height: 44px; }
+  .site-header img { height: 32px; }
   .js .menu-btn:not([hidden]) { display: block; }
   .js .site-nav { display: none; flex-basis: 100%; }
   .js .site-nav.open { display: block; }

@@ -37,6 +37,9 @@ playwright-python = ">=1.40"
 [feature.browser.tasks]
 install-browser = "python -m playwright install chromium"
 test-browser = "python -m pytest -q tests/browser"
+# Make the logo, favicon and link-preview image from the designer's logo SVGs:
+#   pixi run -e browser make-brand PATH/TO/opengwas-logo-v2
+make-brand = "python scripts/make_brand_assets.py"
 
 # The web server (nginx) for hosting the built site; see deploy/README.md.
 [feature.web.dependencies]

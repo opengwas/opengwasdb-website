@@ -124,7 +124,7 @@ class Site:
                 print(f"warning: {s['id']} is not in data/stores.yaml; using its catalogue label", file=sys.stderr)
                 n = {"title": s["label"], "short": s["label"], "source": "Other"}
             s.update(title=n["title"], short=n["short"], source=n["source"],
-                     colour=colours.get(n["source"], "taupe"))
+                     colour=colours.get(n["source"], "sand"))
 
     # ---- page groups ---------------------------------------------------
 

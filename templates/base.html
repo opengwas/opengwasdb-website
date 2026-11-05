@@ -14,9 +14,13 @@
 <meta property="og:title" content="{{ title if title is defined else site.title }}">
 <meta property="og:description" content="{{ desc }}">
 <meta property="og:url" content="{{ absolute(url) }}">
-<meta property="og:image" content="{{ absolute('/assets/img/logo.png') }}">
+<meta property="og:image" content="{{ absolute('/assets/img/og.png') }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The OpenGWAS logo">
 <link rel="alternate" type="application/atom+xml" title="OpenGWAS news" href="/news/feed.xml">
 <link rel="icon" href="{{ asset('img/favicon.ico') }}">
+<link rel="apple-touch-icon" href="{{ asset('img/apple-touch-icon.png') }}">
 <link rel="preload" href="{{ asset('fonts/atkinson-hyperlegible-next-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{ asset('css/site.css') }}">
 {% block head %}{% endblock %}
@@ -25,7 +29,7 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap">
-    <a href="/" class="logo"{% if section == "home" %} aria-current="page"{% endif %}><img src="{{ asset('img/logo.png') }}" alt="IEU OpenGWAS project" width="481" height="180"></a>
+    <a href="/" class="logo"{% if section == "home" %} aria-current="page"{% endif %}><img src="{{ asset('img/logo.svg') }}" alt="OpenGWAS" width="968" height="192"></a>
     <button type="button" class="menu-btn" aria-expanded="false" aria-controls="mainnav" hidden>Menu</button>
     <nav class="site-nav" id="mainnav" aria-label="Main">
       <ul>

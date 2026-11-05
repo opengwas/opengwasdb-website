@@ -288,5 +288,6 @@ that isn't true or available yet.
 
 ## Not decided
 
-- **Dark mode.** The logo PNG has black text on a transparent background, so
-  dark mode needs a light-text variant of the logo.
+- **Dark mode.** The logo's wordmark is dark teal on a transparent background,
+  so dark mode needs a light-text variant of the logo. The designer's files
+  have colour and black versions only.

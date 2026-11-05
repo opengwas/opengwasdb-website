@@ -11,10 +11,10 @@
 sources:
   # Each source's colour on charts, from the logo palette (static/css/site.css).
   GWAS Catalog: teal
-  UK Biobank (MRC IEU): taupe
+  UK Biobank (MRC IEU): sand
   Million Veteran Program: plum
-  FinnGen: lime
-  eQTLGen: orange
+  FinnGen: sage
+  eQTLGen: terracotta
 
 stores:
   OGS-00006:
