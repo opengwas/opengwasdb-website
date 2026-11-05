@@ -119,8 +119,9 @@ works" goes to `/about/`.
 Built (decision 13).
 
 - **Search and table:**
-  - The page is full width, up to 1,800 px, so the table has room for a
-    column per filter.
+  - The results table is full width, up to 1,800 px, so it has room for a
+    column per filter. The header, footer and the rest of the page keep the
+    usual width.
   - One search box above the table: full-text search (FTS5
     `analysis_search`).
   - A filter under each column's name: Store release, ancestry, trait,

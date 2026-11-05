@@ -2,7 +2,6 @@
 {% import "_macros.html" as m %}
 {% set title = "Data" %}
 {% set description = "Search the OpenGWAS Analysis Catalog: " ~ (totals.analyses | nf) ~ " analyses in " ~ totals.stores ~ " store releases, by trait, ancestry, tissue or source." %}
-{% set wide = true %}
 {# The results table's filter columns, left to right. Its cells are written in the same order by static/js/catalogue-search.js. #}
 {% set filter_cols = ["store", "ancestry", "trait", "outcome", "tissue"] %}
 {% block main %}
@@ -11,8 +10,10 @@
     <h1>Data</h1>
     <p class="lede">The catalogue lists {{ totals.analyses | nf }} analyses in {{ totals.stores }} store releases. Search them here, or <a href="#download">download the whole catalogue</a>.</p>
   </header>
+</div>
 
-  <section class="search" id="search" aria-labelledby="search-title">
+<section class="search" id="search" aria-labelledby="search-title">
+  <div class="wrap">
     <h2 id="search-title" class="visually-hidden">Search the catalogue</h2>
     {# The filters and sort buttons sit in the table's header and belong to this form through their form attribute. #}
     <form role="search" id="catalogue-search" data-form>
@@ -21,7 +22,10 @@
       </label>
     </form>
     <noscript><div class="callout">Search and filters need JavaScript. Without it you can browse by <a href="/data/stores/">store release</a> or <a href="#download">download the catalogue</a>.</div></noscript>
+  </div>
 
+  {# Only the results are full width; the rest of the page keeps the usual width. #}
+  <div class="wrap-wide">
     <div class="results-head">
       <p class="count" data-status aria-live="polite">{{ totals.analyses | nf }} analyses, largest sample size first.</p>
       <div class="actions">
@@ -68,8 +72,10 @@
       <span data-page></span>
       <button type="button" data-next>Next</button>
     </nav>
-  </section>
+  </div>
+</section>
 
+<div class="wrap">
   <section class="section" id="stores">
     <h2>Store releases</h2>
     {{ m.store_table(stores) }}

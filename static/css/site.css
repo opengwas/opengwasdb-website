@@ -43,7 +43,7 @@
   --s-1: 0.82rem; --s0: 1rem; --s1: 1.25rem; --s2: 1.5625rem; --s3: 1.95rem; --s4: 2.44rem; --s5: 3.05rem;
   --measure: 66ch;
   --page: 1120px;
-  --wide: 1800px;    /* pages that are mostly a big table: the Data page */
+  --wide: 1800px;    /* the Data page's results table */
   --gutter: clamp(16px, 4vw, 32px);
 }
 
@@ -62,7 +62,7 @@ code { font-size: 0.9em; overflow-wrap: anywhere; }
 td code, .updates code, .demo code, .stores code { white-space: nowrap; }
 main:focus { outline: none; }
 .wrap { max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter); }
-.wide .wrap { max-width: var(--wide); }
+.wrap-wide { max-width: var(--wide); margin: 0 auto; padding: 0 var(--gutter); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .muted { color: var(--muted); }
 .skip { position: absolute; left: 8px; top: -60px; background: var(--ink); color: #fff; padding: 8px 14px; border-radius: 6px; z-index: 10; }
