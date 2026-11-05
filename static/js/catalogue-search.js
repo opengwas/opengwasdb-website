@@ -12,6 +12,8 @@
 //   - Otherwise the query walks the index for the chosen sort. With the
 //     catalogue's covering indexes, filters are checked inside the index and
 //     results come straight from it, without fetching rows.
+// The filters and sort buttons are in the results table's header and belong
+// to the search form through their `form` attribute.
 // Without JavaScript the page shows the first 25 analyses by sample size.
 (() => {
   const root = document.getElementById("search");
@@ -23,11 +25,16 @@
   const rowsEl = root.querySelector("[data-rows]");
   const pager = root.querySelector("[data-pager]");
   const clearBtn = root.querySelector("[data-clear]");
+  const relevanceBtn = root.querySelector("[data-relevance]");
+  const sortBtns = root.querySelectorAll("[data-sort]");
   const PAGE = C.perPage;
   const SMALL = 2000;
   const COLS = "a.id, a.store_id, a.analysis_label, a.ancestry_category, a.sample_size, a.trait_class, a.outcome_type, a.tissue";
   const ORDER = { name: "a.analysis_label, a.id", size: "a.sample_size desc, a.id desc" };
   const SORT_TEXT = { relevance: "best match first", size: "largest sample size first", name: "by name" };
+  const SORT_ARIA = { name: "ascending", size: "descending" };
+  // The table's filter columns, left to right, as templates/data.html writes them.
+  const FILTER_COLS = ["store", "ancestry", "trait", "outcome", "tissue"];
   const nf = n => Number(n).toLocaleString("en-GB");
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const plural = (n, one, many) => `${nf(n)} ${n === 1 ? one : many}`;
@@ -166,17 +173,27 @@
   }
 
   // ---- showing the results
-  function kind(r) {
-    const t = C.labels.trait_class[r.trait_class] || r.trait_class || "";
-    const second = r.tissue ? (C.labels.tissue[r.tissue] || r.tissue) : (C.labels.outcome_type[r.outcome_type] || r.outcome_type || "").toLowerCase();
-    return second ? `${t}, ${second}` : t;
-  }
+  // A coded value's label, as sitegen/fmt.py's label() writes it.
+  const label = (kind, code) => {
+    if (!code) return "";
+    const s = String(code).replace(/_/g, " ");
+    return C.labels[kind][code] || s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  };
+  const CELLS = {
+    store: r => {
+      const st = C.stores[r.store_id] || { short: r.store_id, colour: "taupe" };
+      return `<td class="st"><span class="bean" style="background:var(--${esc(st.colour)})" aria-hidden="true"></span>${esc(st.short)}</td>`;
+    },
+    ancestry: r => `<td class="anc-c">${esc(C.ancestry[r.ancestry_category ?? "unassigned"] || r.ancestry_category)}</td>`,
+    trait: r => `<td class="tr">${esc(label("trait_class", r.trait_class))}</td>`,
+    outcome: r => `<td class="out">${esc(label("outcome_type", r.outcome_type))}</td>`,
+    tissue: r => `<td class="ti">${esc(label("tissue", r.tissue))}</td>`,
+  };
   function rowHtml(r) {
-    const aid = r.id.slice(r.store_id.length + 1), st = C.stores[r.store_id] || { short: r.store_id, colour: "taupe" };
+    const aid = r.id.slice(r.store_id.length + 1);
     return `<tr><td class="an"><a href="/data/analyses/${esc(r.store_id)}/${esc(aid)}/">${esc(r.analysis_label || aid)}</a> <code>${esc(aid)}</code></td>`
-      + `<td class="st"><span class="bean" style="background:var(--${esc(st.colour)})" aria-hidden="true"></span>${esc(st.short)}</td>`
-      + `<td class="anc-c">${esc(C.ancestry[r.ancestry_category ?? "unassigned"] || r.ancestry_category)}</td>`
-      + `<td class="num">${r.sample_size ? nf(r.sample_size) : ""}</td><td class="kind">${esc(kind(r))}</td></tr>`;
+      + FILTER_COLS.map(k => CELLS[k](r)).join("")
+      + `<td class="num">${r.sample_size ? nf(r.sample_size) : ""}</td></tr>`;
   }
   function describe(s, total, shown) {
     const from = (s.page - 1) * PAGE + 1, to = from + shown - 1;
@@ -194,6 +211,7 @@
     for (const d of C.dims) {
       const sel = form.elements[d.key], counts = optionCounts(s.f, d.key);
       sel.value = s.f[d.key] ?? "";
+      sel.classList.toggle("on", sel.value !== "");
       for (const opt of sel.options) {
         if (!opt.value) continue;
         const v = d.values.find(x => x.v === opt.value), n = counts[opt.value] || 0;
@@ -201,9 +219,12 @@
         opt.disabled = n === 0 && sel.value !== opt.value;
       }
     }
-    const sort = form.elements.sort;
-    sort.querySelector('option[value="relevance"]').disabled = !s.q;
-    sort.value = s.sort;
+    for (const b of sortBtns) {
+      const th = b.closest("th");
+      if (b.dataset.sort === s.sort) th.setAttribute("aria-sort", SORT_ARIA[s.sort]);
+      else th.removeAttribute("aria-sort");
+    }
+    relevanceBtn.hidden = !s.q || s.sort === "relevance";
     clearBtn.hidden = !s.q && !Object.keys(s.f).length;
   }
 
@@ -252,10 +273,12 @@
   }
 
   // ---- wiring up the controls
-  const fromForm = () => {
-    const s = { q: form.elements.q.value.trim(), f: {}, sort: form.elements.sort.value, page: 1 };
+  // `sort` is the order the visitor just chose; without one, the order stays, except
+  // that starting a search orders by best match.
+  const fromForm = sort => {
+    const s = { q: form.elements.q.value.trim(), f: {}, sort: sort ?? state.sort, page: 1 };
     for (const d of C.dims) if (form.elements[d.key].value) s.f[d.key] = form.elements[d.key].value;
-    if (s.q && !state.q) s.sort = "relevance";
+    if (!sort && s.q && !state.q) s.sort = "relevance";
     if (!s.q && s.sort === "relevance") s.sort = "size";
     return s;
   };
@@ -267,9 +290,13 @@
   // Most visitors to this page search, so open the catalogue as soon as the page is idle.
   (window.requestIdleCallback || (f => setTimeout(f, 500)))(() => warm().catch(() => {}), { timeout: 2000 });
   form.addEventListener("submit", e => { e.preventDefault(); clearTimeout(typing); run(fromForm(), { push: true }); });
-  for (const name of [...C.dims.map(d => d.key), "sort"]) {
-    form.elements[name].addEventListener("change", () => run(fromForm(), { push: true }));
+  for (const d of C.dims) {
+    form.elements[d.key].addEventListener("change", () => run(fromForm(), { push: true }));
   }
+  for (const b of sortBtns) {
+    b.addEventListener("click", () => { clearTimeout(typing); run(fromForm(b.dataset.sort), { push: true }); });
+  }
+  relevanceBtn.addEventListener("click", () => { clearTimeout(typing); run(fromForm("relevance"), { push: true }); });
   clearBtn.addEventListener("click", () => run({ q: "", f: {}, sort: "size", page: 1 }, { push: true }));
   const turn = step => {
     run({ ...state, page: state.page + step }, { push: true });

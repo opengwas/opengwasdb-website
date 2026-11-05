@@ -43,6 +43,7 @@
   --s-1: 0.82rem; --s0: 1rem; --s1: 1.25rem; --s2: 1.5625rem; --s3: 1.95rem; --s4: 2.44rem; --s5: 3.05rem;
   --measure: 66ch;
   --page: 1120px;
+  --wide: 1800px;    /* pages that are mostly a big table: the Data page */
   --gutter: clamp(16px, 4vw, 32px);
 }
 
@@ -61,6 +62,7 @@ code { font-size: 0.9em; overflow-wrap: anywhere; }
 td code, .updates code, .demo code, .stores code { white-space: nowrap; }
 main:focus { outline: none; }
 .wrap { max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter); }
+.wide .wrap { max-width: var(--wide); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .muted { color: var(--muted); }
 .skip { position: absolute; left: 8px; top: -60px; background: var(--ink); color: #fff; padding: 8px 14px; border-radius: 6px; z-index: 10; }
@@ -145,29 +147,44 @@ td .bean { vertical-align: -2px; }
 /* ---- catalogue search (Data page) ---- */
 .search { margin-top: 8px; }
 .search form { display: grid; gap: 18px; }
-.search .q > span:first-child, .filters label > span { display: block; font-size: 0.9rem; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
+.search .q > span:first-child, .filter-row .fl { display: block; font-size: 0.9rem; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
 .qbox { display: flex; max-width: 760px; border: 2px solid var(--ink); border-radius: 8px; overflow: hidden; background: var(--paper); }
 .qbox:focus-within { outline: 3px solid var(--teal); outline-offset: 3px; }
 .qbox input { flex: 1; min-width: 0; border: 0; font: inherit; font-size: var(--s1); padding: 12px 16px; background: transparent; color: var(--ink); }
 .qbox input:focus { outline: none; }
 .qbox button { border: 0; background: var(--ink); color: #fff; font: inherit; font-weight: 700; padding: 0 24px; cursor: pointer; }
 .qbox button:hover { background: var(--teal); }
-.filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 18px; max-width: 760px; }
-.filters select { width: 100%; font: inherit; font-size: 0.94rem; color: var(--ink); background: var(--paper); border: 1px solid #c9c9c9; border-radius: 6px; padding: 7px 10px; }
-.filters select:hover { border-color: var(--ink); }
 .search [disabled] { cursor: not-allowed; }
 .results-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 20px; margin: 28px 0 10px; }
 .results-head .count { font-size: var(--s1); color: var(--ink); font-variant-numeric: tabular-nums; }
-.search[aria-busy="true"] .results { opacity: 0.55; transition: opacity 150ms; }
-.clear, .pager button { font: inherit; font-size: 0.92rem; font-weight: 500; color: var(--ink); background: var(--paper); border: 1px solid #c9c9c9; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
-.clear:hover, .pager button:hover:not(:disabled) { border-color: var(--ink); }
+.results-head .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.search[aria-busy="true"] .results tbody { opacity: 0.55; transition: opacity 150ms; }
+.pill, .pager button { font: inherit; font-size: 0.92rem; font-weight: 500; color: var(--ink); background: var(--paper); border: 1px solid #c9c9c9; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.pill:hover, .pager button:hover:not(:disabled) { border-color: var(--ink); }
+/* the results table's header: column names, then a filter under each */
+.results .names th { border-bottom: 0; padding-bottom: 6px; }
+.results .filter-row td { padding: 0 12px 10px 0; border-bottom: 2px solid var(--ink); vertical-align: bottom; }
+.results th, .results td { padding-right: 18px; }
+.results tr > :last-child { padding-right: 0; }
+.results .names th:not(.an):not(.num) { width: 8.5em; }
+/* width 0 then min-width 100%: a select fills its column without widening it to fit its longest option */
+.results select { width: 0; min-width: 100%; font: inherit; font-size: 0.9rem; color: var(--ink); background: var(--paper); border: 1px solid #c9c9c9; border-radius: 6px; padding: 5px 8px; }
+.results select:hover:not(:disabled) { border-color: var(--ink); }
+.results select.on { border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal); font-weight: 500; }
+/* each sortable column sorts one way only: the way its index reads (decision 13) */
+.sort { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; display: inline-flex; align-items: baseline; gap: 6px; }
+.sort::after { content: "↓"; opacity: 0.35; }
+.sort[data-sort="name"]::after { content: "↑"; }
+.sort:hover { color: var(--teal); }
+.search .sort:disabled { cursor: default; color: inherit; }
+th[aria-sort] .sort { color: var(--ink); font-weight: 700; }
+th[aria-sort] .sort::after { opacity: 1; }
 .pager { display: flex; align-items: center; gap: 16px; margin-top: 18px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .pager button:disabled { opacity: 0.4; cursor: default; }
 .results td.an a { font-weight: 500; }
 .results td.an code { color: var(--muted); margin-left: 4px; display: inline-block; }
-.results td.st, .results td.anc-c { white-space: nowrap; }
+.results td.st, .results td.anc-c, .results td.tr, .results td.out, .results td.ti { white-space: nowrap; }
 .results th { white-space: nowrap; }
-.results td.kind { color: var(--muted); white-space: nowrap; }
 
 /* ---- downloads ---- */
 .downloads { list-style: none; margin: 0; padding: 0; max-width: 760px; }
@@ -289,6 +306,31 @@ td .bean { vertical-align: -2px; }
   .ways { grid-template-columns: 1fr; gap: 32px; }
   .cols { grid-template-columns: 1fr; gap: 40px; }
   .site-footer .wrap { grid-template-columns: 1fr 1fr; }
+  /* the results table as cards; its header becomes the sort buttons, then the filters */
+  .results, .results thead, .results tbody { display: block; }
+  .results .names { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-bottom: 14px; }
+  .results .names::before { content: "Sort by"; color: var(--muted); font-size: 0.92rem; margin-right: 2px; }
+  .results .names th { display: none; padding: 0; }
+  .results .names th:has(.sort) { display: block; }
+  .results .names .sort { color: var(--ink); font-size: 0.92rem; font-weight: 500; border: 1px solid #c9c9c9; border-radius: 999px; padding: 5px 12px; }
+  .results .names th[aria-sort] .sort { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .results .filter-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 12px 14px; padding-bottom: 16px; border-bottom: 2px solid var(--ink); }
+  .results .filter-row td { padding: 0; border: 0; }
+  .results .filter-row td:empty { display: none; }
+  .results tbody tr { display: flex; flex-wrap: wrap; gap: 2px 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  .results tbody td { border: 0; padding: 0; }
+  .results td.an { flex-basis: 100%; }
+  .results td.an code { display: inline; white-space: normal; overflow-wrap: anywhere; }
+  .results td.st { flex: 1 0 auto; }
+  .results td.num:not(:empty)::before { content: "Sample size "; color: var(--muted); font-size: 0.92rem; }
+  /* a line break, then ancestry · trait · outcome · tissue */
+  .results tbody tr::after { content: ""; flex-basis: 100%; order: 1; }
+  .results td.anc-c, .results td.tr, .results td.out, .results td.ti { order: 2; color: var(--muted); font-size: 0.92rem; white-space: normal; }
+  .results tbody td.anc-c ~ td:not(.num) { margin-left: -6px; }
+  .results td.tr:not(:empty)::before, .results td.out:not(:empty)::before, .results td.ti:not(:empty)::before { content: "·"; margin-right: 6px; }
+}
+@media (min-width: 861px) {
+  .filter-row .fl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 @media (max-width: 600px) {
   html { font-size: 100%; }
@@ -324,14 +366,5 @@ td .bean { vertical-align: -2px; }
   .site-footer .wrap { grid-template-columns: 1fr; }
   .qbox { flex-direction: column; }
   .qbox button { padding: 12px; }
-  .filters { grid-template-columns: 1fr 1fr; }
-  .results thead { display: none; }
-  .results tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
-  .results td { border: 0; padding: 0; }
-  .results td.an { grid-column: 1 / -1; }
-  .results td.an code { display: inline; white-space: normal; overflow-wrap: anywhere; }
-  .results td.st { grid-column: 1; }
-  .results td.num { grid-column: 2; grid-row: 2; }
-  .results td.anc-c, .results td.kind { color: var(--muted); font-size: 0.92rem; white-space: normal; }
-  .results td.num:not(:empty)::before { content: "Sample size "; color: var(--muted); font-size: 0.92rem; }
+  .results .filter-row { grid-template-columns: 1fr 1fr; }
 }

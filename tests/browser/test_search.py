@@ -143,10 +143,44 @@ def test_impossible_combinations_say_so_without_a_query(page):
 def test_the_back_button_restores_the_previous_results(page):
     page.goto(page.base + "/data/")
     first = shown_ids(page)
-    page.select_option("select[name=sort]", "name")
+    page.click("[data-sort=name]")
     shown_ids(page)
     page.go_back()
     assert shown_ids(page) == first
+
+
+def test_a_column_heading_sorts_and_says_so(page):
+    page.goto(page.base + "/data/")
+    assert page.get_attribute("th:has([data-sort=size])", "aria-sort") == "descending"
+    page.click("[data-sort=name]")
+    expected = [r[0] for r in ask("select id from listed_analyses order by analysis_label, id limit 25")]
+    assert shown_ids(page) == expected
+    assert "sort=name" in page.url
+    assert page.get_attribute("th:has([data-sort=name])", "aria-sort") == "ascending"
+    assert page.get_attribute("th:has([data-sort=size])", "aria-sort") is None
+
+
+def test_a_search_sorted_by_a_heading_can_go_back_to_best_match(page):
+    (label,) = ask("select analysis_label from listed_analyses where analysis_label glob '[A-Z][a-z][a-z][a-z]*' limit 1")[0]
+    word = re.match(r"[A-Za-z]+", label).group(0)
+    page.goto(page.base + f"/data/?q={word}")
+    shown_ids(page)
+    assert page.is_hidden("[data-relevance]")
+    page.click("[data-sort=size]")
+    shown_ids(page)
+    assert "largest sample size first" in status(page)
+    page.click("[data-relevance]")
+    shown_ids(page)
+    assert "best match first" in status(page)
+    assert page.is_hidden("[data-relevance]")
+
+
+def test_each_row_has_a_cell_under_each_heading(page):
+    page.goto(page.base + "/data/?outcome=binary")
+    shown_ids(page)
+    headings = page.locator(".results .names th").count()
+    cells = page.locator("[data-rows] tr").evaluate_all("rs => rs.map(r => r.cells.length)")
+    assert cells and set(cells) == {headings}
 
 
 def test_without_javascript_the_first_page_still_shows(browser, base):
@@ -156,4 +190,6 @@ def test_without_javascript_the_first_page_still_shows(browser, base):
     assert pg.locator("[data-rows] tr").count() == 25
     assert pg.locator("noscript").count() == 1
     assert not pg.is_enabled("#q")
+    headings = pg.locator(".results .names th").count()
+    assert set(pg.locator("[data-rows] tr").evaluate_all("rs => rs.map(r => r.cells.length)")) == {headings}
     ctx.close()

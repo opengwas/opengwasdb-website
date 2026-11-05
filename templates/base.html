@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="{{ asset('css/site.css') }}">
 {% block head %}{% endblock %}
 </head>
-<body>
+<body{% if wide is defined and wide %} class="wide"{% endif %}>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap">

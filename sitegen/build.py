@@ -270,7 +270,7 @@ class Site:
         dims = []
         for i, (key, col, name, kind) in enumerate([
                 ("ancestry", "ancestry_category", "Ancestry", None),
-                ("trait", "trait_class", "Kind of trait", "trait_class"),
+                ("trait", "trait_class", "Trait", "trait_class"),
                 ("outcome", "outcome_type", "Outcome", "outcome_type"),
                 ("tissue", "tissue", "Tissue", "tissue"),
                 ("store", "store_id", "Store release", None)]):

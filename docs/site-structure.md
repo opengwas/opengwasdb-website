@@ -119,16 +119,23 @@ works" goes to `/about/`.
 Built (decision 13).
 
 - **Search and table:**
-  - Full-text search (FTS5 `analysis_search`), plus filters for ancestry, kind
-    of trait, outcome, tissue and Store. Each filter option shows how many
-    analyses it would leave.
-  - Sorted by best match, sample size (the default) or name. 25 per page, with
-    the request kept in the address so it can be shared.
+  - The page is full width, up to 1,800 px, so the table has room for a
+    column per filter.
+  - One search box above the table: full-text search (FTS5
+    `analysis_search`).
+  - A filter under each column's name: Store release, ancestry, trait,
+    outcome and tissue. Each filter option shows how many analyses it would
+    leave.
+  - Sorted by best match, sample size (the default) or name. Clicking the
+    Analysis or Sample size heading sorts by it, one way only: the way its
+    index reads. 25 per page, with the request kept in the address so it can
+    be shared.
   - Runs over `catalog.sqlite` in the browser through HTTP range requests
     (decision 7), with plain JavaScript rather than DataTables.
   - The first page is in the HTML, so the page shows results before, or
     without, JavaScript.
-  - On a phone the table becomes result cards.
+  - On a phone or an upright tablet the table becomes result cards, and its
+    header becomes sort buttons and a grid of filters.
 - **Then:** the Store table, downloads, and the ancestry breakdown.
 - **Download:**
   - Every catalogue version's `catalog.sqlite`, `analyses.tsv.gz`,

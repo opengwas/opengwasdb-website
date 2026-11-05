@@ -279,6 +279,16 @@ Agreed. The catalogue should **store** the values the front page needs:
 - **Plain JavaScript, not DataTables.** DataTables needs jQuery and doesn't
   give phone-friendly result cards. The idea is the same: each page of results
   is one SQL query.
+  - The table is laid out the way DataTables lays one out, with a filter
+    under each column's name and one search box above. It was reconsidered
+    for that layout on 2026-11-05 and still not used:
+    - its server-side mode wants the filtered total with each page of rows,
+      and counting a search with filters is the slow query, so results would
+      wait for the count;
+    - it sorts and filters every column, and most columns have no index;
+    - it doesn't show the per-option counts that the build works out.
+  - Only Analysis and Sample size sort, and each sorts one way, because only
+    those have an index to walk (decision 7, point 3).
 - **Requests matter more than bytes.** The library fetches one range at a
   time, so every request is a network round trip. The page is written to make
   few:
