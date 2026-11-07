@@ -14,7 +14,6 @@
 #
 # Layout of OPENGWAS_WEB_BASE:
 #   repo/      this checkout
-#   catalog/   the catalogue copy built for browsing (scripts/make_browse_catalog.py, interim)
 #   www/site   a link to the release being served, in www/releases/ (the previous one is kept)
 #   staging/   the next release, until it passes its checks
 #   run/       the native nginx's config, pid and logs
@@ -44,12 +43,8 @@ built=$(cat "$BASE/.built" 2>/dev/null || true)
 
 say "building $BRANCH at ${want:0:7}, catalogue $(basename "$catalogue")"
 git checkout -q --detach "$want"
-if [ "$(cat "$BASE/.catalog-browse" 2>/dev/null || true)" != "$catalogue" ]; then
-  pixi run -q python scripts/make_browse_catalog.py "$CATALOG" "$BASE/catalog"
-  echo "$catalogue" > "$BASE/.catalog-browse"
-fi
 rm -rf "$BASE/staging"
-pixi run -q python -m sitegen build --catalog "$BASE/catalog" --out "$BASE/staging/site"
+pixi run -q python -m sitegen build --catalog "$CATALOG" --out "$BASE/staging/site"
 pixi run -q python -m sitegen check --out "$BASE/staging/site"
 
 # Publish: move the checked site into releases/ and point the site link at it in

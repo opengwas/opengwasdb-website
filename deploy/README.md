@@ -19,8 +19,7 @@ ssh -N -L 8080:localhost:8080 app-dc3-ogws-p0.services.bris.ac.uk
 ```text
 cron, every 5 min ──▶ deploy/update.sh (in /data/opengwasdb/website/repo, a checkout used only for hosting)
                         if the branch or the catalogue's `current` changed:
-                             make the catalogue copy built for browsing  (interim: scripts/make_browse_catalog.py)
-                             build the site into staging/, check every link
+                             build the site into staging/ from the Analysis Catalog, check every link
                              move it to www/releases/<time>-<commit>, switch www/site to it in one rename
 nginx ──▶ serves www/site, including /data/catalog/<version>/catalog.sqlite (range requests, no gzip)
 ```
@@ -30,7 +29,6 @@ Everything lives in `/data/opengwasdb/website/`:
 | Path | What |
 |---|---|
 | `repo/` | The hosting checkout. Never edit it; push to the branch instead. |
-| `catalog/` | The browsing copy of the Analysis Catalog. Only its current version is a copy; the rest link to the real catalogue. |
 | `www/site` | A link to the release being served |
 | `www/releases/` | The current release and the one before it |
 | `run/` | The native nginx's config, pid and logs, when it runs without Docker |

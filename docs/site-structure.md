@@ -265,13 +265,6 @@ assembly, MVP and eQTLGen licences).
 Found while building the skeleton. Each is something the site says, or needs,
 that isn't true or available yet.
 
-- **The catalogue should be built for browsing** (decision 13). That means two
-  covering indexes, 32 KB pages and an optimised search index. Filtered and
-  sorted views then fetch kilobytes rather than about 10 MB, and every action
-  takes about half the time. This is a change to the catalogue build in
-  `opengwasdb-stores`; the statements are in
-  `scripts/catalogue_browse_indexes.sql`. The site already uses them when
-  they are there.
 - **The server must serve the catalogue files for range requests** (decision
   13). That means `Accept-Ranges: bytes`, no gzip on `.sqlite`, and
   `application/wasm` for the `.wasm` file. Check with a real request after
