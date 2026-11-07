@@ -79,7 +79,7 @@ pixi run serve --catalog tests/fixtures/catalog   # anywhere else
 
 Open <http://localhost:8000/>. The site rebuilds whenever you save a file.
 The preview shows draft posts; the live site doesn't. Away from the server,
-the preview has only the 40 Analyses in the test catalogue.
+the preview has only the test catalogue: a few Analyses from each Store.
 
 Before opening a pull request that changes code or templates, run:
 

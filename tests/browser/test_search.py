@@ -32,26 +32,26 @@ def ask(sql, *args):
     return db.execute(sql, args).fetchall()
 
 
-def with_browse_indexes(tmp):
-    """A copy of the test catalogue as decision 13 proposes it: 32 KB pages,
-    the covering indexes, and an optimised search index."""
+def without_browse_indexes(tmp):
+    """A copy of the test catalogue without its two covering indexes, which the
+    page then does without (decision 13). The catalogue has built them since
+    opengwasdb-stores#452 (its ADR 0041)."""
     root = tmp / "catalog"
     shutil.copytree(FIXTURE, root, symlinks=True)
     db = sqlite3.connect((root / "current" / "catalog.sqlite").resolve())
-    db.execute("pragma page_size = 32768")
-    db.executescript((ROOT / "scripts" / "catalogue_browse_indexes.sql").read_text())
-    db.execute("insert into analysis_search(analysis_search) values ('optimize')")
+    db.execute("drop index analyses_browse_by_label")
+    db.execute("drop index analyses_browse_by_sample_size")
     db.commit()
     db.execute("vacuum")
     db.close()
     return root
 
 
-# Every test runs against the catalogue as published and as decision 13 proposes.
-@pytest.fixture(scope="module", params=["as published", "with browse indexes"])
+# Every test runs against the catalogue as published, and without the covering indexes.
+@pytest.fixture(scope="module", params=["as published", "without browse indexes"])
 def base(request, tmp_path_factory):
     tmp = tmp_path_factory.mktemp("browser")
-    catalog = FIXTURE if request.param == "as published" else with_browse_indexes(tmp)
+    catalog = FIXTURE if request.param == "as published" else without_browse_indexes(tmp)
     out = tmp / "_site"
     build(catalog, out)
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Handler, directory=str(out)))

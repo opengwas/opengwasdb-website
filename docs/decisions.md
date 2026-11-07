@@ -321,9 +321,10 @@ Agreed. The catalogue should **store** the values the front page needs:
     - the current catalogue takes 3.5–5.5 s.
   - **Before the planning above,** "European + binary, by name" took 1,155
     requests, about 35 s at 30 ms each.
-- **Proposed for the catalogue build** (`opengwasdb-stores`). The statements
-  are in `scripts/catalogue_browse_indexes.sql`, and the browser tests run
-  against a catalogue built this way as well as the current one.
+- **Proposed for the catalogue build** (`opengwasdb-stores`), and **built into
+  it since 7 Nov 2026** (opengwasdb-stores#452, its ADR 0041). The browser
+  tests run against the catalogue as built, and against a copy without the
+  covering indexes.
   - **Two covering indexes.** Each holds every column the results table
     shows, so filters are checked and results read without fetching rows.
     The size index runs largest-first, because the library's read-ahead only
@@ -365,9 +366,10 @@ Agreed. The catalogue should **store** the values the front page needs:
   internet.
 - **The catalogue is served from the same address** as the pages, under
   `/data/catalog/<version>/`.
-  - Until opengwas/opengwasdb-stores#424, it's a copy of the current version
-    built for browsing (`scripts/make_browse_catalog.py`), so its checksum
-    differs from the real catalogue's.
+  - These are the catalogue's own files, so their checksums match the real
+    catalogue's. Until 7 Nov 2026 the current version was a copy re-indexed
+    for browsing. The catalogue build now does that itself
+    (opengwas/opengwasdb-stores#452).
 - **Corrects decision 12.** opengwas.io and the legacy API run on an Oracle
   Cloud VM (132.145.36.155), not on the server that holds the catalogue.
   - **Building:** Bristol builds, because the catalogue and benchmarks are
