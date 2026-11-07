@@ -17,9 +17,24 @@ sources:
   eQTLGen: terracotta
 
 stores:
+  # The Chen et al. 2023 plasma metabolome atlas (PMID 36635386), one Store per
+  # ancestry. Each short name says its ancestry, so the four can be told apart in
+  # the Data page's Store filter and results.
   OGS-00006:
     title: Chen et al. 2023 plasma metabolome, European
-    short: Plasma metabolome (Chen 2023)
+    short: Chen 2023 metabolome, European
+    source: GWAS Catalog
+  OGS-00024:
+    title: Chen et al. 2023 plasma metabolome, African
+    short: Chen 2023 metabolome, African
+    source: GWAS Catalog
+  OGS-00025:
+    title: Chen et al. 2023 plasma metabolome, East Asian
+    short: Chen 2023 metabolome, East Asian
+    source: GWAS Catalog
+  OGS-00026:
+    title: Chen et al. 2023 plasma metabolome, South Asian
+    short: Chen 2023 metabolome, South Asian
     source: GWAS Catalog
   OGS-00009:
     title: UK Biobank, MRC IEU analyses (ukb-b)

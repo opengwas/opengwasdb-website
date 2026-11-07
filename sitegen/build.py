@@ -129,7 +129,11 @@ class Site:
     # ---- page groups ---------------------------------------------------
 
     def catalogue_news(self, versions: list[dict], stores: dict) -> list[dict]:
-        """One news item per catalogue version, worded from what it changed."""
+        """One news item per catalogue version, worded from what it changed.
+
+        A later version that added, changed and removed no listed analysis, such
+        as one that only changed how the file is built, gets none.
+        """
         def title(sid):
             return stores[sid]["title"] if sid in stores else sid
 
@@ -138,6 +142,8 @@ class Site:
 
         items = []
         for v in versions:
+            if not (v["first"] or v["added"] or v["changed"] or v["removed"]):
+                continue
             parts, added = [], v["added"]
             if added:
                 n = fmt.nf(sum(added.values()))
@@ -157,7 +163,7 @@ class Site:
             items.append({
                 "kind": "catalogue", "url": f"/news/catalogue-{v['version']}/",
                 "title": "Catalogue published" if v["first"] else "Catalogue updated",
-                "date": v["built_at"], "summary": " ".join(parts) or "No changes to listed analyses.",
+                "date": v["built_at"], "summary": " ".join(parts),
                 "version": v,
             })
         return items

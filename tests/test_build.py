@@ -55,14 +55,40 @@ def test_home_page_numbers_come_from_the_catalogue(site):
     assert f"The catalogue holds {n:,} analyses" in html
 
 
-def test_every_catalogue_version_gets_a_news_item(site):
+def catalogue_versions():
+    """Each test catalogue version, and whether it changed any listed analysis.
+
+    A first version has no changes.tsv and lists every analysis it holds; a
+    later one's changes.tsv has a row per analysis added, changed or removed.
+    """
+    changed = {}
+    for p in (FIXTURE / "versions").iterdir():
+        changes = p / "changes.tsv"
+        changed[p.name] = not changes.exists() or len(changes.read_text().splitlines()) > 1
+    return changed
+
+
+def test_every_catalogue_version_that_changed_something_gets_a_news_item(site):
     out, _ = site
-    versions = [p.name for p in (FIXTURE / "versions").iterdir()]
     news = (out / "news/index.html").read_text()
     feed = (out / "news/feed.xml").read_text()
-    for v in versions:
-        assert f"/news/catalogue-{v}/" in news
-        assert f"/news/catalogue-{v}/" in feed
+    for v, changed in catalogue_versions().items():
+        if changed:
+            assert f"/news/catalogue-{v}/" in news
+            assert f"/news/catalogue-{v}/" in feed
+
+
+def test_a_catalogue_version_that_changed_nothing_gets_no_news_item(site):
+    out, _ = site
+    unchanged = [v for v, changed in catalogue_versions().items() if not changed]
+    assert unchanged, "expected a test catalogue version that changed no listed analysis"
+    news = (out / "news/index.html").read_text()
+    feed = (out / "news/feed.xml").read_text()
+    for v in unchanged:
+        assert f"/news/catalogue-{v}/" not in news
+        assert f"/news/catalogue-{v}/" not in feed
+        assert not (out / f"news/catalogue-{v}").exists()
+    assert "No changes to listed analyses" not in news
 
 
 def test_draft_posts_are_left_out_unless_asked_for(site, tmp_path):
