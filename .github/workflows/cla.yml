@@ -33,7 +33,7 @@ jobs:
           path-to-document: https://github.com/opengwas/opengwasdb-website/blob/main/CLA.md
           branch: cla-signatures
           # University of Bristol contributors and bots, who need no CLA (CLA.md).
-          allowlist: t0mrg,dependabot[bot],github-actions[bot],renovate[bot]
+          allowlist: t0mrg,explodecomputer,dependabot[bot],github-actions[bot],renovate[bot]
           custom-notsigned-prcomment: >-
             Thank you for your contribution. Before we can merge it, please read our
             [Contributor License Agreement](https://github.com/opengwas/opengwasdb-website/blob/main/CLA.md)
