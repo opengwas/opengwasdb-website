@@ -1,5 +1,9 @@
 # Working on the website
 
+**Sign the Contributor License Agreement first.** Contributions from outside
+the University of Bristol need one; see [CLA.md](CLA.md). The CLA bot asks you
+to sign on your first pull request.
+
 The site is plain HTML built by a small Python program (`sitegen/`) from
 Markdown, a few YAML files and the Analysis Catalog. Most changes are to
 Markdown or YAML and need no code.
@@ -126,3 +130,11 @@ this except HTTPS):
 - the catalogue files under `/data/catalog/` served for range requests:
   keep-alive or HTTP/2, `Accept-Ranges: bytes`, no gzip on `.sqlite`, and
   `application/wasm` for `.wasm` (decision 13).
+
+## Licence
+
+By contributing, you agree that your contribution is licensed as described in
+the CLA you signed. The website's code and text are released under
+GPL-3.0-only ([LICENSE](LICENSE)). Third-party code under `static/vendor/`
+keeps its own licence. The data in the Analysis Catalog comes from many
+sources and keeps each source's terms; the licence here does not cover it.
