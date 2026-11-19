@@ -4,6 +4,8 @@ description = "The opengwas.io static site: Markdown and the Analysis Catalog in
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-arm64", "osx-64"]
 version = "0.1.0"
+license = "GPL-3.0-only"
+license-file = "LICENSE"
 
 [dependencies]
 python = "3.13.*"
