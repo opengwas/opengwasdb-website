@@ -46,6 +46,14 @@ class Catalog:
                from stores s join listed_analyses a using (store_id)
                group by s.store_id order by s.store_id""")
 
+    def ld_resources(self) -> list[dict] | None:
+        """The LD resources (ld_resources), one row each in the catalogue's order, or None when
+        this catalogue has no such table, as one built before opengwasdb-stores#537 doesn't."""
+        has = self._rows("select 1 from sqlite_master where type = 'table' and name = 'ld_resources'")
+        if not has:
+            return None
+        return self._rows('select * from ld_resources order by ld_id')
+
     def totals(self) -> dict:
         r = self._rows(
             """select count(*) as analyses,

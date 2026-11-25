@@ -31,8 +31,10 @@ def copy_ld_resources(src: Path, dest: Path) -> None:
     with sqlite3.connect(f"file:{src}?mode=ro", uri=True) as s:
         schema = s.execute("select sql from sqlite_master where type = 'table' and name = 'ld_resources'").fetchone()
         if schema is None:
-            return
+            raise SystemExit(f"no ld_resources table in {src}: point --ld-catalog at a catalogue that has one")
         rows = s.execute("select * from ld_resources").fetchall()
+    if not rows:
+        raise SystemExit(f"the ld_resources table in {src} has no rows")
     d = sqlite3.connect(dest)
     d.execute("drop table if exists ld_resources")
     d.execute(schema[0])
@@ -41,7 +43,7 @@ def copy_ld_resources(src: Path, dest: Path) -> None:
     d.close()
 
 
-def trim(src: Path, dest: Path, keep: set[str], ld_source: Path | None = None) -> None:
+def trim(src: Path, dest: Path, keep: set[str], ld_source: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(f"file:{src}?mode=ro", uri=True) as s, sqlite3.connect(dest) as d:
         s.backup(d)
@@ -54,8 +56,7 @@ def trim(src: Path, dest: Path, keep: set[str], ld_source: Path | None = None) -
     d.execute("insert into analysis_search(analysis_search) values ('optimize')")
     d.commit()
     d.close()
-    if ld_source is not None:
-        copy_ld_resources(ld_source, dest)
+    copy_ld_resources(ld_source, dest)
     d = sqlite3.connect(dest)
     d.execute("vacuum")
     d.close()
@@ -63,15 +64,19 @@ def trim(src: Path, dest: Path, keep: set[str], ld_source: Path | None = None) -
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--catalog", type=Path, default=Path("/data/opengwasdb/stores/catalog"))
-    ap.add_argument("--per-store", type=int, default=4)
+    ap.add_argument("--catalog", type=Path, help="default /data/opengwasdb/stores/catalog")
+    ap.add_argument("--per-store", type=int, help="default 4")
     ap.add_argument("--ld-only", action="store_true", help="only replace ld_resources in the existing fixture")
     ap.add_argument("--ld-catalog", type=Path, help="a catalogue root whose current version has ld_resources")
     args = ap.parse_args()
-
     if args.ld_only:
         if not args.ld_catalog:
             ap.error("--ld-only needs --ld-catalog")
+        given = [f for f, v in (("--catalog", args.catalog), ("--per-store", args.per_store)) if v is not None]
+        if given:
+            ap.error(f"--ld-only keeps the fixture's Analyses and versions, so it does not take {' or '.join(given)}")
+
+    if args.ld_only:
         source = (args.ld_catalog / "current").resolve() / "catalog.sqlite"
         for db in sorted(OUT.glob("versions/*/catalog.sqlite")):
             copy_ld_resources(source, db)
@@ -80,6 +85,8 @@ def main():
             print(f"wrote ld_resources to {db}")
         return
 
+    args.catalog = args.catalog or Path("/data/opengwasdb/stores/catalog")
+    args.per_store = 4 if args.per_store is None else args.per_store
     current = (args.catalog / "current").resolve()
     versions = sorted((args.catalog / "versions").iterdir(), key=lambda v: v.stat().st_mtime)
     first = next((v for v in versions if not (v / "changes.tsv").exists()), versions[0])
