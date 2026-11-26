@@ -304,7 +304,8 @@
   };
   pager.querySelector("[data-prev]").addEventListener("click", () => turn(-1));
   pager.querySelector("[data-next]").addEventListener("click", () => turn(1));
-  addEventListener("popstate", () => run(readState()));
+  // Switching the page's tabs changes only the #fragment, which fires popstate too; that needs no search.
+  addEventListener("popstate", () => { const s = readState(); if (toUrl(s) !== toUrl(state)) run(s); });
 
   for (const el of form.elements) el.disabled = false;
   syncForm(state);

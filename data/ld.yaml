@@ -1,14 +1,13 @@
-# The LD resources pages (/data/ld/ and /data/ld/<OGL-id>/). Text fields accept
+# The LD resources: the Data page's LD tab (/data/#ld) and a page per OGL id
+# (/data/ld/<OGL-id>/). Text fields accept
 # Markdown. Every number on these pages comes from the catalogue's ld_resources
 # table, never from this file.
 
-# Shown in a section of /data/.
-intro: >-
-  The linkage disequilibrium resources behind LD queries and completion, by
-  ancestry. [See the LD resources](/data/ld/).
+# Shown in the LD tab when the catalogue has no ld_resources table.
 unavailable: >-
   The LD resources are unavailable: this catalogue version does not list them.
 
+# The LD tab's introduction.
 lede: >-
   The linkage disequilibrium resources OpenGWAS holds, by ancestry: what each
   is built from, how big it is, whether it is served, and the terms it carries.

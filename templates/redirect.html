@@ -1,0 +1,14 @@
+{# A page that has moved: sends the visitor on to its new address. Not listed in the sitemap. #}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url={{ to }}">
+<link rel="canonical" href="{{ absolute(to) }}">
+<title>Moved</title>
+</head>
+<body>
+<p>This page has moved to <a href="{{ to }}">{{ absolute(to) }}</a>.</p>
+</body>
+</html>

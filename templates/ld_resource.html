@@ -5,7 +5,7 @@
 {% block main %}
 <div class="wrap">
   <header class="page-head">
-    <p class="crumb"><a href="/data/">Data</a> / <a href="/data/ld/">LD resources</a></p>
+    <p class="crumb"><a href="/data/">Data</a> / <a href="/data/#ld">LD resources</a></p>
     <h1>{{ r.label | recorded }}</h1>
     <p class="lede">{{ kind.singular }} <code>{{ r.ld_id }}</code>, {{ r.ancestry | ancestry_rec }} ancestry. Status: {{ r.status | label_rec("status") }}.</p>
   </header>

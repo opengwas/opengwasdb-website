@@ -10,9 +10,15 @@
     <h1>Data</h1>
     <p class="lede">The catalogue lists {{ totals.analyses | nf }} analyses in {{ totals.stores }} store releases. Search them here, or <a href="#download">download the whole catalogue</a>.</p>
   </header>
+  {# One link per panel below. Without JavaScript every panel is shown and these jump to them; with it, static/js/data-tabs.js shows one panel at a time. #}
+  <nav class="tabs" aria-label="Sections of the Data page" data-tabs>
+    {% for id, name in [("search", "Search"), ("stores", "Store releases"), ("ld", "LD resources"), ("ancestry", "Ancestry"), ("download", "Download")] %}
+    <a href="#{{ id }}">{{ name }}</a>
+    {% endfor %}
+  </nav>
 </div>
 
-<section class="search" id="search" aria-labelledby="search-title">
+<section class="search panel" id="search" aria-labelledby="search-title" data-panel>
   <div class="wrap">
     <h2 id="search-title" class="visually-hidden">Search the catalogue</h2>
     {# The filters and sort buttons sit in the table's header and belong to this form through their form attribute. #}
@@ -76,17 +82,32 @@
 </section>
 
 <div class="wrap">
-  <section class="section" id="stores">
+  <section class="section panel" id="stores" data-panel>
     <h2>Store releases</h2>
     {{ m.store_table(stores) }}
   </section>
 
-  <section class="section" id="ld">
+  <section class="section panel" id="ld" data-panel>
     <h2>LD resources</h2>
-    <p class="intro">{{ (ld_words.intro if ld_available else ld_words.unavailable) | md_inline }}</p>
+    {% if ld_groups is not none %}
+    <p class="intro">{{ ld_words.lede | md_inline }}</p>
+    {% for g in ld_groups %}
+    <h3>{{ g.heading }}</h3>
+    <p class="intro">{{ g.what }}</p>
+    {{ m.ld_table(g) }}
+    {% endfor %}
+    {% else %}
+    <p class="intro">{{ ld_words.unavailable | md_inline }}</p>
+    {% endif %}
   </section>
 
-  <section class="section" id="download">
+  <section class="section panel" id="ancestry" data-panel>
+    <h2>Ancestry</h2>
+    <p class="intro">Analyses by the ancestry group each was assigned.</p>
+    {{ m.ancestry_bars(ancestry) }}
+  </section>
+
+  <section class="section panel" id="download" data-panel>
     <h2>Download the catalogue</h2>
     <p class="intro">Version <code>{{ download.version }}</code>, built {{ catalog.built_at | fdate }}. Each version's files stay at the same address, unchanged, so a script or paper can point at exactly the version it used.</p>
     <ul class="downloads">
@@ -98,16 +119,11 @@
     </ul>
     <p class="fine">For scripts: <a href="/data/catalog/current.json"><code>/data/catalog/current.json</code></a> always names the current version and the addresses and checksums of its files.</p>
   </section>
-
-  <section class="section">
-    <h2>Ancestry</h2>
-    <p class="intro">Analyses by the ancestry group each was assigned.</p>
-    {{ m.ancestry_bars(ancestry) }}
-  </section>
 </div>
 {% endblock %}
 {% block scripts %}
 <script type="application/json" id="search-config">{{ search.config | safe }}</script>
 <script src="{{ asset('vendor/sql.js-httpvfs/index.js') }}" defer></script>
 <script src="{{ asset('js/catalogue-search.js') }}" defer></script>
+<script src="{{ asset('js/data-tabs.js') }}" defer></script>
 {% endblock %}

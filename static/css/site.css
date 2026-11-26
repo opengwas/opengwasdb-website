@@ -101,6 +101,15 @@ main:focus { outline: none; }
 .page-head h1 { font-size: clamp(var(--s3), 4vw, var(--s4)); max-width: 24ch; }
 .page-head .lede { margin-top: 14px; font-size: var(--s1); line-height: 1.45; max-width: 52ch; }
 .page-head .meta { margin-top: 10px; color: var(--muted); }
+/* The Data page's tabs (static/js/data-tabs.js). Without JavaScript they are a row of jump links. */
+.tabs { display: flex; gap: 4px 28px; overflow-x: auto; border-bottom: 1px solid var(--rule); margin-bottom: 8px; scrollbar-width: thin; }
+.tabs a { flex: none; color: var(--ink); font-weight: 500; text-decoration: none; padding: 10px 0 9px; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.tabs a:hover { color: var(--teal); }
+.tabs a[aria-current] { color: var(--teal); border-bottom-color: var(--teal); }
+.has-tabs .panel.section { margin-top: 40px; }
+.has-tabs .search.panel { padding-top: 32px; }
+.panel h3 { font-size: var(--s1); margin: 36px 0 14px; }
+.panel h3 + .intro { margin-top: -6px; }
 .crumb { margin-bottom: 12px; color: var(--muted); font-size: 0.94rem; }
 .callout { background: var(--wash); border-left: 3px solid var(--teal); border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 0 0 28px; max-width: var(--measure); }
 .callout p + p { margin-top: 8px; }

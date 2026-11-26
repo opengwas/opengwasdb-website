@@ -1,4 +1,4 @@
-"""The LD resources list at /data/ld/ and one page per OGL id, from the catalogue's ld_resources table."""
+"""The LD resources tab on /data/ and one page per OGL id, from the catalogue's ld_resources table."""
 import re
 import shutil
 import sqlite3
@@ -18,6 +18,13 @@ def site(tmp_path_factory):
     out = tmp_path_factory.mktemp("ld") / "_site"
     build(FIXTURE, out)
     return out
+
+
+def ld_tab(site):
+    """The LD tab of the Data page."""
+    html = (site / "data/index.html").read_text()
+    start = html.index('id="ld"')
+    return html[start:html.index("</section>", start)]
 
 
 @pytest.fixture(scope="module")
@@ -51,26 +58,31 @@ def test_a_catalogue_without_the_table_is_unavailable_not_an_error(without_table
 
 # 2. The build
 
-def test_the_list_and_a_page_per_row_exist(site):
-    assert (site / "data/ld/index.html").is_file()
+def test_a_page_per_row_exists(site):
     for r in Catalog(FIXTURE).ld_resources():
         assert (site / "data/ld" / r["ld_id"] / "index.html").is_file(), r["ld_id"]
     assert check(site) == []
 
 
-def test_the_list_is_grouped_by_kind_and_linked_from_data(site):
+def test_the_data_page_has_an_ld_tab_grouped_by_kind(site):
+    data = (site / "data/index.html").read_text()
+    assert 'href="#ld"' in data
+    tab = ld_tab(site)
+    assert re.findall(r"<h3>([^<]+)</h3>", tab) == ["LD Stores", "Genotype Stores", "LD panels"]
+    assert 'href="/data/ld/OGL-00001/"' in tab
+    assert "/data/ld/OGL-00001/" in (site / "sitemap-1.xml").read_text()
+
+
+def test_the_old_list_address_sends_visitors_to_the_tab(site):
     html = (site / "data/ld/index.html").read_text()
-    main = html[html.index("<main"):html.index("</main>")]
-    headings = re.findall(r"<h2>([^<]+)</h2>", main)
-    assert headings == ["LD Stores", "Genotype Stores", "LD panels"]
-    assert 'href="/data/ld/OGL-00001/"' in html
-    assert 'href="/data/ld/"' in (site / "data/index.html").read_text()
-    assert "/data/ld/" in (site / "sitemap-1.xml").read_text()
+    assert 'content="0; url=/data/#ld"' in html and 'href="/data/#ld"' in html
+    assert "<loc>https://opengwas.io/data/ld/</loc>" not in (site / "sitemap-1.xml").read_text()
+    assert 'href="/data/#ld"' in (site / "data/ld/OGL-00001/index.html").read_text()
 
 
 def test_a_genotype_store_row_shows_both_sizes(site):
     nb = "\u00a0"
-    html = (site / "data/ld/index.html").read_text()
+    html = ld_tab(site)
     row = html[html.index("OGL-00007"):]
     row = row[:row.index("</tr>")]
     assert f"1.5{nb}GB" in row and f"4.1{nb}GB" in row
@@ -102,7 +114,7 @@ def test_ancestry_is_named_as_elsewhere_on_the_site(site):
     page = (site / "data/ld/OGL-00001/index.html").read_text()
     assert "European" in page and "European ancestry" in page
     assert "EUR ancestry" not in page
-    html = (site / "data/ld/index.html").read_text()
+    html = ld_tab(site)
     assert "<td>European</td>" in html and "<td>EUR</td>" not in html
 
 
@@ -116,7 +128,7 @@ def test_a_null_value_is_shown_as_not_recorded(site):
     page = (site / "data/ld/OGL-00013/index.html").read_text()
     assert "Not recorded" in page
     assert "<dd>0</dd>" not in page and "<dd></dd>" not in page
-    html = (site / "data/ld/index.html").read_text()
+    html = ld_tab(site)
     row = html[html.index("OGL-00013"):]
     row = row[:row.index("</tr>")]
     assert row.count("Not recorded") >= 2  # variant count and size
@@ -127,10 +139,10 @@ def test_a_null_value_is_shown_as_not_recorded(site):
 
 def test_a_catalogue_without_the_table_still_builds_and_says_so(without_table):
     _, out = without_table
-    assert not (out / "data/ld").exists()
+    assert not list((out / "data/ld").glob("OGL-*"))
     data = (out / "data/index.html").read_text()
     assert "LD resources are unavailable" in data
-    assert 'href="/data/ld/"' not in data
+    assert 'href="/data/ld/' not in data
     assert check(out) == []
 
 

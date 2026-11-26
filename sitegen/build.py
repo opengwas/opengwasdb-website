@@ -364,16 +364,19 @@ class Site:
         download = self.publish_catalogue()
         ld = cat.ld_resources()
         words = self.data["ld"]
-        self.write("/data/", "data.html", section="data", stores=stores, ancestry=cat.ancestry(), download=download,
-                   search=self.search(by_id, download), ld_available=ld is not None, ld_words=words)
+        ld_groups = None
         if ld is not None:
             kinds = {k["kind"]: k for k in words["kinds"]}
             unknown = [f"{r['ld_id']} ({r['kind']!r})" for r in ld if r["kind"] not in kinds]
             if unknown:
                 raise ValueError(f"ld_resources rows of a kind data/ld.yaml does not list: {', '.join(unknown)}")
-            self.write("/data/ld/", "ld.html", section="data", words=words,
-                       groups=[{**k, "rows": [r for r in ld if r["kind"] == k["kind"]]}
-                               for k in words["kinds"] if any(r["kind"] == k["kind"] for r in ld)])
+            ld_groups = [{**k, "rows": [r for r in ld if r["kind"] == k["kind"]]}
+                         for k in words["kinds"] if any(r["kind"] == k["kind"] for r in ld)]
+        self.write("/data/", "data.html", section="data", stores=stores, ancestry=cat.ancestry(), download=download,
+                   search=self.search(by_id, download), ld_groups=ld_groups, ld_words=words)
+        # The LD resources were once a page of their own; they are now the Data page's LD tab.
+        self.write("/data/ld/", "redirect.html", listed=False, to="/data/#ld")
+        if ld is not None:
             for r in ld:
                 served = r["status"] in LD_SERVED and r["kind"] == "ld_store"
                 self.write(f"/data/ld/{r['ld_id']}/", "ld_resource.html", section="data", r=r, kind=kinds[r["kind"]],

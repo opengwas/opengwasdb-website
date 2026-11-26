@@ -193,3 +193,52 @@ def test_without_javascript_the_first_page_still_shows(browser, base):
     headings = pg.locator(".results .names th").count()
     assert set(pg.locator("[data-rows] tr").evaluate_all("rs => rs.map(r => r.cells.length)")) == {headings}
     ctx.close()
+
+
+# The Data page's tabs
+
+PANELS = ["search", "stores", "ld", "ancestry", "download"]
+
+
+def visible_panels(pg):
+    return [p for p in PANELS if pg.is_visible(f"#{p}")]
+
+
+def shows(pg, panel):
+    """Wait for the tab to switch (it follows the address's #fragment), then list the panels shown."""
+    pg.wait_for_function("id => [...document.querySelectorAll('[data-panel]')].every(p => p.hidden === (p.id !== id))", arg=panel)
+    return visible_panels(pg)
+
+
+def test_the_data_page_opens_on_search_and_a_tab_shows_its_panel_alone(page):
+    page.goto(page.base + "/data/")
+    assert visible_panels(page) == ["search"]
+    assert page.get_attribute("[data-tabs] a[href='#search']", "aria-current") == "true"
+    page.click("[data-tabs] a[href='#ld']")
+    assert shows(page, "ld") == ["ld"]
+    assert page.url.endswith("/data/#ld")
+    assert page.get_attribute("[data-tabs] a[href='#search']", "aria-current") is None
+    page.go_back()
+    assert shows(page, "search") == ["search"]
+
+
+def test_a_link_to_a_tab_opens_it(page):
+    page.goto(page.base + "/data/#download")
+    assert shows(page, "download") == ["download"]
+    page.goto(page.base + "/data/")
+    page.click(".page-head a[href='#download']")
+    assert shows(page, "download") == ["download"]
+
+
+def test_the_old_ld_address_opens_the_ld_tab(page):
+    page.goto(page.base + "/data/ld/")
+    page.wait_for_url("**/data/#ld")
+    assert shows(page, "ld") == ["ld"]
+
+
+def test_without_javascript_every_panel_shows(browser, base):
+    ctx = browser.new_context(java_script_enabled=False)
+    pg = ctx.new_page()
+    pg.goto(base + "/data/")
+    assert visible_panels(pg) == PANELS
+    ctx.close()
