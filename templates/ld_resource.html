@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set title = (r.label | recorded) ~ " (" ~ r.ld_id ~ ")" %}
+{% set description = kind.singular ~ " " ~ r.ld_id ~ ": " ~ (r.ancestry | ancestry_rec) ~ " ancestry, built from " ~ (r.source_panel | recorded) ~ "." %}
+{% block main %}
+<div class="wrap">
+  <header class="page-head">
+    <p class="crumb"><a href="/data/">Data</a> / <a href="/data/ld/">LD resources</a></p>
+    <h1>{{ r.label | recorded }}</h1>
+    <p class="lede">{{ kind.singular }} <code>{{ r.ld_id }}</code>, {{ r.ancestry | ancestry_rec }} ancestry. Status: {{ r.status | label_rec("status") }}.</p>
+  </header>
+
+  <div class="cols">
+    <section>
+      <h2>Provenance</h2>
+      <dl class="facts">
+        <dt>Resource</dt><dd><code>{{ r.ld_id }}</code></dd>
+        <dt>Ancestry</dt><dd>{{ r.ancestry | ancestry_rec }}</dd>
+        <dt>Source panel</dt><dd>{{ r.source_panel | recorded }}</dd>
+        <dt>Samples (n)</dt><dd>{{ r.n | nf_rec }}</dd>
+        {% if r.kind != "ld_panel" %}<dt>Clusters (k)</dt><dd>{{ r.k | nf_rec }}</dd>{% endif %}
+        <dt>Variants</dt><dd>{{ r.n_variants | nf_rec }}</dd>
+        {% if r.kind == "ld_panel" %}<dt>Blocks</dt><dd>{{ r.n_blocks | nf_rec }}</dd>{% endif %}
+        <dt>Reference assembly</dt><dd>{{ r.reference_assembly | recorded }}</dd>
+        <dt>Holds</dt><dd>{{ r.representation | recorded }}</dd>
+        <dt>Format version</dt><dd>{{ r.format_version | recorded }}</dd>
+        {% if r.kind != "ld_panel" %}
+        <dt>Near band (<code>near_bp</code>)</dt><dd>{{ r.near_bp | bp_rec }}</dd>
+        <dt>Far band (<code>far_bp</code>)</dt><dd>{{ r.far_bp | bp_rec }}</dd>
+        <dt>Far-pair threshold (<code>t_far</code>)</dt><dd>{{ r.t_far | real_rec }}</dd>
+        <dt>Partner-row threshold (<code>t_partner</code>)</dt><dd>{{ r.t_partner | real_rec }}</dd>
+        {% endif %}
+        <dt>Size on disk</dt><dd>{{ r.store_bytes | bytes_rec }}</dd>
+        {% if r.kind == "genotype_store" %}<dt>Genotypes on disk</dt><dd>{{ r.genotype_bytes | bytes_rec }}</dd>{% endif %}
+        <dt>Built with</dt><dd>{{ r.built_with | recorded }}</dd>
+        <dt>Built</dt><dd>{{ r.created_at | date_rec }}</dd>
+        <dt>Source</dt><dd>{{ r.source | recorded }}</dd>
+        <dt>Licence</dt><dd>{{ r.licence | recorded }}</dd>
+        <dt>Used for</dt><dd>{{ r.used_for | recorded }}</dd>
+        <dt>Record</dt><dd>{% if record_url %}<a href="{{ record_url }}">{{ r.record }}</a> in opengwasdb-stores{% else %}{{ none | recorded }}{% endif %}</dd>
+      </dl>
+    </section>
+    {% if served %}
+    <aside>
+      <h2>{{ using_title }}</h2>
+      {{ m.notice(retiring) if r.status == "retiring" }}
+      {{ using | md }}
+    </aside>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

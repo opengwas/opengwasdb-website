@@ -38,6 +38,11 @@ PUBLISHED = {
     "changes.tsv": "What this version added, changed or removed.",
 }
 
+# The LD resources' kinds, their order and their words are in data/ld.yaml.
+LD_RECORD_URL = "https://github.com/opengwas/opengwasdb-stores/blob/main/"
+# Statuses whose LD Store is served today, so a page says how to use it.
+LD_SERVED = ("served", "retiring")
+
 # The query demo's grid: rows are variants, columns are analyses.
 COLS, ROWS = 36, 20
 
@@ -77,7 +82,7 @@ class Site:
         self.root, self.out, self.drafts = Path(root), Path(out), drafts
         self.catalog = Catalog(catalog_root)
         self.data = {name: yaml.safe_load((self.root / "data" / f"{name}.yaml").read_text())
-                     for name in ("site", "home", "stores", "tools")}
+                     for name in ("site", "home", "stores", "tools", "ld")}
         self.bench = json.loads((self.root / "data" / "benchmarks.json").read_text())
         self.urls: list[str] = []
         self.text_env = jinja2.Environment(undefined=jinja2.StrictUndefined)
@@ -93,6 +98,12 @@ class Site:
         env.filters.update(
             nf=fmt.nf, fdate=fmt.fdate, isodate=fmt.isodate, fms=fmt.fms, fbytes=fmt.fbytes, fsize=fmt.fsize,
             label=lambda code, kind: fmt.label(kind, code), ancestry=fmt.ancestry,
+            recorded=fmt.recorded, nf_rec=lambda v: fmt.recorded(v, fmt.nf),
+            bytes_rec=lambda v: fmt.recorded(v, fmt.fbytes), date_rec=lambda v: fmt.recorded(v, fmt.fdate),
+            real_rec=lambda v: fmt.recorded(v, repr),
+            label_rec=lambda v, kind: fmt.recorded(v, lambda x: fmt.label(kind, x)),
+            bp_rec=lambda v: fmt.recorded(v, lambda x: f"{fmt.nf(x)} bp"),
+            ancestry_rec=lambda v: fmt.recorded(v, fmt.ancestry),
             md=lambda s: Markup(content.markdown(s)), md_inline=lambda s: Markup(content.markdown_inline(s)))
         hashes = {p.relative_to(self.root / "static").as_posix(): hashlib.md5(p.read_bytes()).hexdigest()[:8]
                   for p in (self.root / "static").rglob("*") if p.is_file()}
@@ -351,8 +362,24 @@ class Site:
 
         # Data: the catalogue, each Store Release and each Analysis
         download = self.publish_catalogue()
+        ld = cat.ld_resources()
+        words = self.data["ld"]
         self.write("/data/", "data.html", section="data", stores=stores, ancestry=cat.ancestry(), download=download,
-                   search=self.search(by_id, download))
+                   search=self.search(by_id, download), ld_available=ld is not None, ld_words=words)
+        if ld is not None:
+            kinds = {k["kind"]: k for k in words["kinds"]}
+            unknown = [f"{r['ld_id']} ({r['kind']!r})" for r in ld if r["kind"] not in kinds]
+            if unknown:
+                raise ValueError(f"ld_resources rows of a kind data/ld.yaml does not list: {', '.join(unknown)}")
+            self.write("/data/ld/", "ld.html", section="data", words=words,
+                       groups=[{**k, "rows": [r for r in ld if r["kind"] == k["kind"]]}
+                               for k in words["kinds"] if any(r["kind"] == k["kind"] for r in ld)])
+            for r in ld:
+                served = r["status"] in LD_SERVED and r["kind"] == "ld_store"
+                self.write(f"/data/ld/{r['ld_id']}/", "ld_resource.html", section="data", r=r, kind=kinds[r["kind"]],
+                           record_url=LD_RECORD_URL + r["record"] if r["record"] else None, served=served,
+                           using=self.fill(words["using"]["body" if r["label"] else "body_unnamed"], label=r["label"], ld_id=r["ld_id"]) if served else None,
+                           using_title=words["using"]["heading"], retiring=words["using"]["retiring"])
         self.write("/data/stores/", "stores.html", section="data", stores=stores)
         for s in stores:
             self.write(f"/data/stores/{s['id']}/", "store.html", section="data", store=s,

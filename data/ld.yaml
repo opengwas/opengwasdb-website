@@ -1,0 +1,46 @@
+# The LD resources pages (/data/ld/ and /data/ld/<OGL-id>/). Text fields accept
+# Markdown. Every number on these pages comes from the catalogue's ld_resources
+# table, never from this file.
+
+# Shown in a section of /data/.
+intro: >-
+  The linkage disequilibrium resources behind LD queries and completion, by
+  ancestry. [See the LD resources](/data/ld/).
+unavailable: >-
+  The LD resources are unavailable: this catalogue version does not list them.
+
+lede: >-
+  The linkage disequilibrium resources OpenGWAS holds, by ancestry: what each
+  is built from, how big it is, whether it is served, and the terms it carries.
+
+# The kinds a row can have (ld_resources.kind), in the order the list shows
+# them. A row of any other kind fails the build.
+kinds:
+  - kind: ld_store
+    heading: LD Stores
+    singular: LD Store
+    what: Pairwise r between variants, read by the Data API's LD queries.
+  - kind: genotype_store
+    heading: Genotype Stores
+    singular: Genotype Store
+    what: Genotypes with r computed per query. Each one's size on disk is its store plus its genotypes.
+  - kind: ld_panel
+    heading: LD panels
+    singular: LD panel
+    what: Per-block eigendecompositions of a reference panel, used to complete (impute) Analyses.
+
+# On the page of a served or retiring LD Store. {{ label }} and {{ ld_id }} are that row's.
+using:
+  heading: Using it
+  retiring: This resource is still served, and its retirement is decided. Check its record before building on it.
+  body: >-
+    To use this store, pass its name, `{{ label }}`, or its id, `{{ ld_id }}`,
+    as the LD store. A bare ancestry picks that ancestry's default store, which
+    may be a different one. How to choose a store is in the
+    [opengwasr LD vignette](https://github.com/opengwas/opengwasr/blob/main/vignettes/ld.Rmd).
+  # When the record holds no label, only the id is given.
+  body_unnamed: >-
+    To use this store, pass its id, `{{ ld_id }}`, as the LD store. A bare
+    ancestry picks that ancestry's default store, which may be a different one.
+    How to choose a store is in the
+    [opengwasr LD vignette](https://github.com/opengwas/opengwasr/blob/main/vignettes/ld.Rmd).

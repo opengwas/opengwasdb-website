@@ -91,3 +91,11 @@ def join_and(items) -> str:
     if len(items) < 2:
         return "".join(items)
     return ", ".join(items[:-1]) + " and " + items[-1]
+
+
+NOT_RECORDED = "Not recorded"
+
+
+def recorded(value, how=str) -> str:
+    """A value as `how` writes it, or "Not recorded" when the catalogue holds none: never 0, never blank."""
+    return NOT_RECORDED if value is None or value == "" else how(value)

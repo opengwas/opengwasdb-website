@@ -23,6 +23,8 @@ throwaway prototype, kept unmerged on the branch `prototype/home-variants`
 /data/stores/                       All Store Releases
 /data/stores/OGS-00009/             One Store Release: summary, provenance, licence, download
 /data/analyses/OGS-00009/ukb-b-10001/   One Analysis (pre-rendered for search engines and citation)
+/data/ld/                           LD resources, grouped: LD Stores, Genotype Stores, LD panels
+/data/ld/OGL-00001/                 One LD resource: provenance, link to its record, how to use it
 /tools/                             Tools that work with OpenGWAS data
 /news/                              Data updates (generated) and written posts
 /news/<yyyy-mm-dd>-<slug>/          One post
@@ -143,6 +145,9 @@ Built (decision 13).
     `stores.tsv` and `changes.tsv`, at `/data/catalog/<version>/`, with
     SHA-256 checksums.
   - `/data/catalog/current.json` names the current version, for scripts.
+- **LD resources:** a section linking to `/data/ld/`. A catalogue without the
+  `ld_resources` table builds as before, the section says the list is
+  unavailable, and `/data/ld/` is not built.
 - **Not yet:**
   - the licence filter, which waits for the licence fields to be filled in;
   - the variant C bar of Stores by source.
@@ -153,6 +158,25 @@ Identity, source, layout, completion state, Analysis count, validation date,
 source snapshot, licence(s), how to download, and how to cite. This page is
 the "receipt" that provenance-minded users want. Source: the catalogue
 `stores` table plus the release metadata.
+
+### LD resources `/data/ld/` and `/data/ld/<OGL-id>/`
+
+Built from the catalogue's `ld_resources` table (opengwasdb-stores#537), with
+no number typed by hand.
+
+- **The list:** one table per kind, in the order LD Stores, Genotype Stores,
+  LD panels, using the Store table's styling. Each row shows ancestry, source
+  panel, n, variants, size on disk (a Genotype Store's also shows its
+  genotypes), status, licence and what it is used for.
+- **A page per OGL id:** provenance (thresholds, `near_bp`, `far_bp`,
+  assembly, `built_with`, build date, source) and a link to the record in
+  opengwasdb-stores on GitHub (`main`, the row's `record` path). A `served` or
+  `retiring` LD Store also says which name and id to pass as the LD store,
+  and links opengwasr's LD vignette. It names no endpoint (decisions.md,
+  "Platform and API") and no ancestry, which would pick the ancestry's default
+  store. A row of a kind `data/ld.yaml` does not list fails the build. The
+  pages' words, and the kinds' order, are in `data/ld.yaml`.
+- **Missing values:** a NULL shows as "Not recorded", never `0` or a blank. `t_far` shows every digit the catalogue holds.
 
 ### Analysis `/data/analyses/<OGS-id>/<analysis_id>/`
 

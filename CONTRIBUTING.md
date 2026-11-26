@@ -10,6 +10,7 @@ data/
   site.yaml       menu, transition notice, footer
   home.yaml       every word on the home page
   stores.yaml     display names for each Store Release
+  ld.yaml         the LD resources pages: kinds, their order and their words
   tools.yaml      the tools page, and whether each tool works with the new stores
   benchmarks.json query timings and sizes for the home page (generated, see below)
 templates/        page layouts (Jinja)

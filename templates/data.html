@@ -81,6 +81,11 @@
     {{ m.store_table(stores) }}
   </section>
 
+  <section class="section" id="ld">
+    <h2>LD resources</h2>
+    <p class="intro">{{ (ld_words.intro if ld_available else ld_words.unavailable) | md_inline }}</p>
+  </section>
+
   <section class="section" id="download">
     <h2>Download the catalogue</h2>
     <p class="intro">Version <code>{{ download.version }}</code>, built {{ catalog.built_at | fdate }}. Each version's files stay at the same address, unchanged, so a script or paper can point at exactly the version it used.</p>
