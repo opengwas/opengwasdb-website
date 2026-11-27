@@ -387,6 +387,27 @@ Agreed. The catalogue should **store** the values the front page needs:
   - Pages caps a site at 1 GB, and the catalogue is expected to reach GBs
     (ADR 0039).
 
+### 15. Whole-store downloads
+
+- **Decided 2026-11-26.** Every public store (store release, genotype store,
+  LD store, LD panel) downloads whole, as one Store Archive. How archives are
+  built, held and handed out is a decision across repositories, recorded in
+  og-dev-hub ADR 0006 with the term in og-dev-hub's `CONTEXT.md`. In short:
+  the stores pipeline builds the archives and records them in the catalogue's
+  `store_archives` table, ogdb-api hands an authenticated user a link that
+  expires, and a download host on the build server serves it.
+- *Means for this site:*
+  - The site never handles archives or links. It shows what the catalogue
+    records about each archive (file, size, release, date, SHA-256) on the
+    page of the store it holds, and nothing where there is none.
+  - The Download tab says how downloading works: one archive per store, an
+    OpenGWAS account, a link asked for through the OpenGWAS API or with
+    opengwasr or opengwaspy. It names no endpoint, function or token
+    (decision 1, "Platform and API").
+  - Until the API hands out links, `downloads.live` in `data/site.yaml` is
+    false and the pages say downloads are coming soon. Turning it on is one
+    change there.
+
 ## Still open
 
 Nothing blocks starting the design work.

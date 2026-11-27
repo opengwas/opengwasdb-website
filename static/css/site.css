@@ -202,6 +202,9 @@ th[aria-sort] .sort::after { opacity: 1; }
 .downloads .size { color: var(--muted); margin-left: 8px; font-variant-numeric: tabular-nums; }
 .downloads p { margin-top: 2px; }
 .downloads .sum { color: var(--muted); font-size: 0.86rem; }
+.facts code.sha { word-break: break-all; font-size: 0.86rem; }
+.whole { max-width: var(--measure); margin-bottom: 8px; }
+.whole p + p { margin-top: 12px; }
 .fine { margin-top: 14px; color: var(--muted); font-size: 0.94rem; }
 
 /* ---- prose pages (Markdown) ---- */

@@ -39,6 +39,7 @@
         <dt>Used for</dt><dd>{{ r.used_for | recorded }}</dd>
         <dt>Record</dt><dd>{% if record_url %}<a href="{{ record_url }}">{{ r.record }}</a> in opengwasdb-stores{% else %}{{ none | recorded }}{% endif %}</dd>
       </dl>
+      {% if archive %}{{ m.archive(archive) }}{% endif %}
     </section>
     {% if served %}
     <aside>

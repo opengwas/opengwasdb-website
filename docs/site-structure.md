@@ -139,15 +139,23 @@ Built (decision 13).
     without, JavaScript.
   - On a phone or an upright tablet the table becomes result cards, and its
     header becomes sort buttons and a grid of filters.
-- **Then:** the Store table, downloads, and the ancestry breakdown.
+- **Tabs:** the page opens on the search, and a row of tabs shows one section
+  at a time: Search, Store releases, LD resources, Ancestry, Download. The
+  address's `#fragment` picks the tab (`/data/#ld`), so a tab can be linked
+  to. Without JavaScript every section shows and the tabs are jump links.
+- **Store releases:** the Store table.
+- **LD resources:** one table per kind, from the catalogue's `ld_resources`
+  table, each row linking to its own page. A catalogue without that table
+  says the list is unavailable. `/data/ld/` redirects here (`/data/#ld`).
+- **Ancestry:** the ancestry breakdown.
 - **Download:**
-  - Every catalogue version's `catalog.sqlite`, `analyses.tsv.gz`,
-    `stores.tsv` and `changes.tsv`, at `/data/catalog/<version>/`, with
-    SHA-256 checksums.
-  - `/data/catalog/current.json` names the current version, for scripts.
-- **LD resources:** a section linking to `/data/ld/`. A catalogue without the
-  `ld_resources` table builds as before, the section says the list is
-  unavailable, and `/data/ld/` is not built.
+  - **Whole stores** (decision 15): one archive per store, an OpenGWAS
+    account, a link asked for through the OpenGWAS API or with opengwasr or
+    opengwaspy. "Coming soon" until `downloads.live` is set.
+  - **The catalogue:** every catalogue version's `catalog.sqlite`,
+    `analyses.tsv.gz`, `stores.tsv` and `changes.tsv`, at
+    `/data/catalog/<version>/`, with SHA-256 checksums.
+    `/data/catalog/current.json` names the current version, for scripts.
 - **Not yet:**
   - the licence filter, which waits for the licence fields to be filled in;
   - the variant C bar of Stores by source.
@@ -159,13 +167,17 @@ source snapshot, licence(s), how to download, and how to cite. This page is
 the "receipt" that provenance-minded users want. Source: the catalogue
 `stores` table plus the release metadata.
 
-### LD resources `/data/ld/` and `/data/ld/<OGL-id>/`
+- **Download** (decision 15): where the catalogue's `store_archives` table
+  holds this release's Store Archive, its file, size, release, date and
+  SHA-256, and a link to the Download tab. Nothing where it holds none.
+
+### LD resource `/data/ld/<OGL-id>/`
 
 Built from the catalogue's `ld_resources` table (opengwasdb-stores#537), with
 no number typed by hand.
 
-- **The list:** one table per kind, in the order LD Stores, Genotype Stores,
-  LD panels, using the Store table's styling. Each row shows ancestry, source
+- **The list** is the Data page's LD tab: one table per kind, in the order LD
+  Stores, Genotype Stores, LD panels, using the Store table's styling. Each row shows ancestry, source
   panel, n, variants, size on disk (a Genotype Store's also shows its
   genotypes), status, licence and what it is used for.
 - **A page per OGL id:** provenance (thresholds, `near_bp`, `far_bp`,
@@ -176,6 +188,8 @@ no number typed by hand.
   "Platform and API") and no ancestry, which would pick the ancestry's default
   store. A row of a kind `data/ld.yaml` does not list fails the build. The
   pages' words, and the kinds' order, are in `data/ld.yaml`.
+- **Download:** as on a Store Release page, where `store_archives` holds this
+  resource's Store Archive.
 - **Missing values:** a NULL shows as "Not recorded", never `0` or a blank. `t_far` shows every digit the catalogue holds.
 
 ### Analysis `/data/analyses/<OGS-id>/<analysis_id>/`

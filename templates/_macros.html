@@ -69,3 +69,16 @@
 </table>
 </div>
 {% endmacro %}
+
+{# A Store Archive's facts, on the page of the store it holds. a: a store_archives row. #}
+{% macro archive(a) %}
+<h2 id="download">Download</h2>
+<p class="intro">Downloads whole, as one archive{% if site.downloads.live %}. <a href="/data/#download">How to download</a>{% else %}, through the OpenGWAS platform, which is coming soon. <a href="/data/#download">About downloads</a>{% endif %}.</p>
+<dl class="facts">
+  <dt>Archive</dt><dd><code>{{ a.file }}</code></dd>
+  <dt>Size</dt><dd>{{ a.bytes | fbytes }}</dd>
+  {% if a.release_id %}<dt>Release</dt><dd><code>{{ a.release_id }}</code></dd>{% endif %}
+  <dt>Built</dt><dd>{{ a.created_at | fdate }}</dd>
+  <dt>SHA-256</dt><dd><code class="sha">{{ a.sha256 }}</code></dd>
+</dl>
+{% endmacro %}

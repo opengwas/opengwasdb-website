@@ -54,6 +54,14 @@ class Catalog:
             return None
         return self._rows('select * from ld_resources order by ld_id')
 
+    def store_archives(self) -> dict[str, dict]:
+        """Each Store Archive (store_archives), keyed by the OGS or OGL id of the Store it holds.
+        Empty when this catalogue has no such table, as none built before the archives exist has."""
+        has = self._rows("select 1 from sqlite_master where type = 'table' and name = 'store_archives'")
+        if not has:
+            return {}
+        return {r["id"]: r for r in self._rows("select * from store_archives order by id")}
+
     def totals(self) -> dict:
         r = self._rows(
             """select count(*) as analyses,
