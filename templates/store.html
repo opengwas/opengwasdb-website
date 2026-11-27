@@ -32,6 +32,7 @@
       <ul class="plain">
       {% for l in licences %}<li>{{ l.licence or "Not recorded yet" }}: {{ l.n | nf }} {{ "analysis" if l.n == 1 else "analyses" }}</li>{% endfor %}
       </ul>
+      {% if archive %}{{ m.archive(archive) }}{% endif %}
     </section>
     <aside>
       <h2>Ancestry</h2>

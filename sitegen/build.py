@@ -364,6 +364,7 @@ class Site:
         download = self.publish_catalogue()
         ld = cat.ld_resources()
         words = self.data["ld"]
+        archives = cat.store_archives()
         ld_groups = None
         if ld is not None:
             kinds = {k["kind"]: k for k in words["kinds"]}
@@ -380,12 +381,13 @@ class Site:
             for r in ld:
                 served = r["status"] in LD_SERVED and r["kind"] == "ld_store"
                 self.write(f"/data/ld/{r['ld_id']}/", "ld_resource.html", section="data", r=r, kind=kinds[r["kind"]],
+                           archive=archives.get(r["ld_id"]),
                            record_url=LD_RECORD_URL + r["record"] if r["record"] else None, served=served,
                            using=self.fill(words["using"]["body" if r["label"] else "body_unnamed"], label=r["label"], ld_id=r["ld_id"]) if served else None,
                            using_title=words["using"]["heading"], retiring=words["using"]["retiring"])
         self.write("/data/stores/", "stores.html", section="data", stores=stores)
         for s in stores:
-            self.write(f"/data/stores/{s['id']}/", "store.html", section="data", store=s,
+            self.write(f"/data/stores/{s['id']}/", "store.html", section="data", store=s, archive=archives.get(s["id"]),
                        licences=cat.licences(s["id"]), ancestry=cat.ancestry(s["id"]),
                        analyses=cat.analyses(s["id"], limit=25))
         analysis_tpl = self.env.get_template("analysis.html")

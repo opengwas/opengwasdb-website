@@ -25,6 +25,21 @@ nav:
     soon: true
     hint: platform.opengwas.io is not live yet
 
+# Whole-store downloads: one Store Archive per store (decision 15). Each archive's
+# facts come from the catalogue's store_archives table, never from here. Until
+# `live` is true the pages say downloading is coming soon; set it once the
+# OpenGWAS API hands out download links, and check that `how` points at the
+# instructions for doing so.
+downloads:
+  live: false
+  how:
+    - label: opengwasr
+      what: R
+      href: https://github.com/opengwas/opengwasr
+    - label: opengwaspy
+      what: Python
+      href: https://github.com/opengwas/opengwaspy
+
 # Shown under the header on every page during the grace period (decision 8).
 notice: >-
   OpenGWAS is moving to a new catalogue, and the legacy service keeps running

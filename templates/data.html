@@ -108,7 +108,22 @@
   </section>
 
   <section class="section panel" id="download" data-panel>
-    <h2>Download the catalogue</h2>
+    <h2>Download</h2>
+    <h3>Whole stores</h3>
+    {# The words are fixed here; what each archive holds comes from the catalogue. site.downloads (data/site.yaml) says whether links can be had yet. #}
+    {% set tools %}{% for h in site.downloads.how %}{% if site.downloads.live %}<a href="{{ h.href }}">{{ h.label }}</a>{% else %}{{ h.label }}{% endif %} ({{ h.what }}){{ " or " if loop.revindex == 2 else (", " if not loop.last else "") }}{% endfor %}{% endset %}
+    <div class="whole">
+      {% if site.downloads.live %}
+      <p>Each store release, genotype store, LD store and LD panel can be downloaded whole, as one archive. Unpacked with <code>tar -xf</code>, it is ready to query with OpenGWAS's tools.</p>
+      <p>Downloading needs an OpenGWAS account. You ask for a download link through the OpenGWAS API, or with {{ tools }}.</p>
+      {% else %}
+      <p>Each store release, genotype store, LD store and LD panel will be downloadable whole, as one archive, once the OpenGWAS platform opens. It is coming soon. Unpacked with <code>tar -xf</code>, an archive is ready to query with OpenGWAS's tools.</p>
+      <p>You will need an OpenGWAS account, and will ask for a download link through the OpenGWAS API, or with {{ tools }}.</p>
+      {% endif %}
+      <p>An archive's size and SHA-256 checksum are on the page of the store it holds, under <a href="#stores">Store releases</a> and <a href="#ld">LD resources</a>. Each source's own terms apply to what you download.</p>
+    </div>
+
+    <h3>The catalogue</h3>
     <p class="intro">Version <code>{{ download.version }}</code>, built {{ catalog.built_at | fdate }}. Each version's files stay at the same address, unchanged, so a script or paper can point at exactly the version it used.</p>
     <ul class="downloads">
     {% for name, f in download.files.items() %}
